@@ -64,4 +64,8 @@ public class UserSession {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public boolean isActive() { return active; }
+
+    public void setActive(boolean active) { this.active = active; }
 }

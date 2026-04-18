@@ -1,16 +1,11 @@
 package ch.packops.packopsbackend.domain;
 
-import jakarta.persistence.*;
+public final class Role {
 
-@Entity
-@Table(name = "role")
-public class Role {
+    public static final String ADMIN = "admin";
+    public static final String OPERATOR = "operator";
+    public static final String VIEWER = "viewer";
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name; // "ADMIN", "OPERATOR", "VIEWER"
-
-
+    private Role() {
+    }
 }
