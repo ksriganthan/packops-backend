@@ -1,15 +1,10 @@
-package ch.packops.packopsbackend.domain;
+package ch.packops.packopsbackend.dto;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "product_configuration")
-public class ProductConfiguration {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+/**
+ * @author Kapischan
+ */
+public class ProductConfigurationDto {
     private Long id;
-
     private String name;
     private String description;
     private Integer defaultTargetWeight;
@@ -18,13 +13,14 @@ public class ProductConfiguration {
     private String icon;
     private String color;
     private Boolean active;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private String categoryName;
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -59,6 +55,14 @@ public class ProductConfiguration {
         this.defaultTolerance = defaultTolerance;
     }
 
+    public Integer getPackageUnits() {
+        return packageUnits;
+    }
+
+    public void setPackageUnits(Integer packageUnits) {
+        this.packageUnits = packageUnits;
+    }
+
     public String getIcon() {
         return icon;
     }
@@ -83,19 +87,11 @@ public class ProductConfiguration {
         this.active = active;
     }
 
-    public Integer getPackageUnits() {
-        return packageUnits;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setPackageUnits(Integer packageUnits) {
-        this.packageUnits = packageUnits;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
