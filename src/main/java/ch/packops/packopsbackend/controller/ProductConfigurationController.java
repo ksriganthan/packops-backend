@@ -11,6 +11,7 @@ import java.util.List;
  * @author Kapischan
  */
 
+//TODO: mit Spezifikation abgleichen (getProductConfigurationsByCategory)
 
 @RestController
 @RequestMapping("/api/products")
