@@ -27,7 +27,7 @@ public class ConfigurationService {
         dto.setTargetWeight(config.getTargetWeight());
         dto.setTolerance(config.getTolerance());
         dto.setMaxUnits(config.getMaxUnits());
-        dto.setMaxIterations(config.getMaxIterations());
+        dto.setMaxIterationsForReject(config.getMaxIterations());
         return dto;
     }
 
@@ -37,7 +37,7 @@ public class ConfigurationService {
         config.setTargetWeight(dto.getTargetWeight());
         config.setTolerance(dto.getTolerance());
         config.setMaxUnits(dto.getMaxUnits());
-        config.setMaxIterations(dto.getMaxIterations());
+        config.setMaxIterations(dto.getMaxIterationsForReject());
         return config;
     }
 
@@ -63,7 +63,7 @@ public class ConfigurationService {
         existing.setTargetWeight(dto.getTargetWeight());
         existing.setTolerance(dto.getTolerance());
         existing.setMaxUnits(dto.getMaxUnits());
-        existing.setMaxIterations(dto.getMaxIterations());
+        existing.setMaxIterations(dto.getMaxIterationsForReject());
         existing.setUpdatedAt(LocalDateTime.now());
 
         return toDto(configurationRepository.save(existing));

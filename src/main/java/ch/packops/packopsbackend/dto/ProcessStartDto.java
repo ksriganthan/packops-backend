@@ -1,13 +1,13 @@
 package ch.packops.packopsbackend.dto;
 
-public class ConfigurationDto {
+public class ProcessStartDto {
 
     private Integer targetWeight;
     private Integer tolerance;
     private Integer maxUnits;
     private Integer maxIterationsForReject;
 
-    public ConfigurationDto() {
+    public ProcessStartDto() {
     }
 
     public Integer getTargetWeight() {
