@@ -2,11 +2,8 @@ package ch.packops.packopsbackend.domain;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Entity
-@Table(name = "package_unit")
+@Table(name = "packages")
 public class PackageUnit {
 
     @Id
@@ -14,16 +11,17 @@ public class PackageUnit {
     private Long id;
 
     private Integer measuredWeight;
+
     private Integer deviation;
-    private Boolean withinTolerance;
-    private LocalDateTime createdAt;
+
+    private Boolean wasRefeed;
 
     @ManyToOne
     @JoinColumn(name = "process_id")
     private Process process;
 
-    @OneToMany(mappedBy = "packageUnit", cascade = CascadeType.ALL)
-    private List<Portion> portions;
+    public PackageUnit() {
+    }
 
     public Long getId() {
         return id;
@@ -45,20 +43,12 @@ public class PackageUnit {
         this.deviation = deviation;
     }
 
-    public Boolean getWithinTolerance() {
-        return withinTolerance;
+    public Boolean getWasRefeed() {
+        return wasRefeed;
     }
 
-    public void setWithinTolerance(Boolean withinTolerance) {
-        this.withinTolerance = withinTolerance;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setWasRefeed(Boolean wasRefeed) {
+        this.wasRefeed = wasRefeed;
     }
 
     public Process getProcess() {
@@ -67,13 +57,5 @@ public class PackageUnit {
 
     public void setProcess(Process process) {
         this.process = process;
-    }
-
-    public List<Portion> getPortions() {
-        return portions;
-    }
-
-    public void setPortions(List<Portion> portions) {
-        this.portions = portions;
     }
 }

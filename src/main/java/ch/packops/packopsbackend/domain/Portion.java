@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "portion")
+@Table(name = "portions")
 public class Portion {
 
     @Id
@@ -13,13 +13,17 @@ public class Portion {
     private Long id;
 
     private Integer measuredWeight;
+
     private Integer bucketNr;
-    private String bucketType;
-    private LocalDateTime createdAt;
+
+    private LocalDateTime timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "package_unit_id")
+    @JoinColumn(name = "package_id")
     private PackageUnit packageUnit;
+
+    public Portion() {
+    }
 
     public Long getId() {
         return id;
@@ -41,20 +45,12 @@ public class Portion {
         this.bucketNr = bucketNr;
     }
 
-    public String getBucketType() {
-        return bucketType;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
-    public void setBucketType(String bucketType) {
-        this.bucketType = bucketType;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
     public PackageUnit getPackageUnit() {

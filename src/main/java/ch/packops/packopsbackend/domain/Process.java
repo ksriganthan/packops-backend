@@ -3,65 +3,40 @@ package ch.packops.packopsbackend.domain;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "process")
+@Table(name = "processes")
 public class Process {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime startTimestamp;
-    private LocalDateTime endTimestamp;
-    private String status;
     private Integer targetWeight;
+
     private Integer tolerance;
+
+    private Integer maxUnits;
+
     private Integer maxIterationsForReject;
-    private Integer packageUnits;
-    private Integer deadlocksDetected;
+
+    private Integer unitsPacked;
+
+    private String status;
+
+    private LocalDateTime startTimestamp;
+
+    private LocalDateTime endTimestamp;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "product_configuration_id")
-    private ProductConfiguration productConfiguration;
-
-    @OneToMany(mappedBy = "process", cascade = CascadeType.ALL)
-    private List<PackageUnit> packages;
-
-    @OneToMany(mappedBy = "process", cascade = CascadeType.ALL)
-    private List<AuditLog> logs;
+    public Process() {
+    }
 
     public Long getId() {
         return id;
-    }
-
-    public LocalDateTime getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    public void setStartTimestamp(LocalDateTime startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    public LocalDateTime getEndTimestamp() {
-        return endTimestamp;
-    }
-
-    public void setEndTimestamp(LocalDateTime endTimestamp) {
-        this.endTimestamp = endTimestamp;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public Integer getTargetWeight() {
@@ -80,6 +55,14 @@ public class Process {
         this.tolerance = tolerance;
     }
 
+    public Integer getMaxUnits() {
+        return maxUnits;
+    }
+
+    public void setMaxUnits(Integer maxUnits) {
+        this.maxUnits = maxUnits;
+    }
+
     public Integer getMaxIterationsForReject() {
         return maxIterationsForReject;
     }
@@ -88,20 +71,36 @@ public class Process {
         this.maxIterationsForReject = maxIterationsForReject;
     }
 
-    public Integer getPackageUnits() {
-        return packageUnits;
+    public Integer getUnitsPacked() {
+        return unitsPacked;
     }
 
-    public void setPackageUnits(Integer packageUnits) {
-        this.packageUnits = packageUnits;
+    public void setUnitsPacked(Integer unitsPacked) {
+        this.unitsPacked = unitsPacked;
     }
 
-    public Integer getDeadlocksDetected() {
-        return deadlocksDetected;
+    public String getStatus() {
+        return status;
     }
 
-    public void setDeadlocksDetected(Integer deadlocksDetected) {
-        this.deadlocksDetected = deadlocksDetected;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(LocalDateTime startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
+
+    public LocalDateTime getEndTimestamp() {
+        return endTimestamp;
+    }
+
+    public void setEndTimestamp(LocalDateTime endTimestamp) {
+        this.endTimestamp = endTimestamp;
     }
 
     public User getUser() {
@@ -110,29 +109,5 @@ public class Process {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public ProductConfiguration getProductConfiguration() {
-        return productConfiguration;
-    }
-
-    public void setProductConfiguration(ProductConfiguration productConfiguration) {
-        this.productConfiguration = productConfiguration;
-    }
-
-    public List<PackageUnit> getPackages() {
-        return packages;
-    }
-
-    public void setPackages(List<PackageUnit> packages) {
-        this.packages = packages;
-    }
-
-    public List<AuditLog> getLogs() {
-        return logs;
-    }
-
-    public void setLogs(List<AuditLog> logs) {
-        this.logs = logs;
     }
 }
