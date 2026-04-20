@@ -11,7 +11,7 @@ import java.util.List;
  * @author Kapischan
  */
 
-//TODO: mit Spezifikation abgleichen (getProductConfigurationsByCategory)
+//TODO: Für Variante 1 oder 2 entscheiden
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,12 +23,26 @@ public class ProductConfigurationController {
         this.productConfigurationService = productConfigurationService;
     }
 
+    // TODO: Variante 1 gemäss REST-API-Spezifikation
     // GET /api/products
     @GetMapping
     public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurations(
             @RequestParam(required = false) String category, @RequestParam String token) {
         try {
             List<ProductConfigurationDto> productConfigurations = productConfigurationService.getProductConfigurations(category);
+            return ResponseEntity.ok(productConfigurations);
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // TODO: Variante 2 gemäss Controller Layer
+    // GET /api/products?category=...
+    @GetMapping
+    public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurationsByCategory(
+            @RequestParam(required = true) String category, @RequestParam String token) {
+        try {
+            List<ProductConfigurationDto> productConfigurations = productConfigurationService.getProductConfigurationsByCategory(category);
             return ResponseEntity.ok(productConfigurations);
         } catch (RuntimeException e) {
             return ResponseEntity.internalServerError().build();

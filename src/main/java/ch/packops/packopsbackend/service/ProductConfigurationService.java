@@ -113,6 +113,7 @@ public class ProductConfigurationService {
         existing.setIcon(dto.getIcon());
         existing.setColor(dto.getColor());
         existing.setActive(dto.getActive());
+        // Ist nötig für das Mapping von dto zu Domain, da Category bei DTO nur ein String ist
         if (dto.getCategoryName() != null) {
             categoryRepository.findAll().stream()
                     .filter(c -> c.getName().equalsIgnoreCase(dto.getCategoryName()))
