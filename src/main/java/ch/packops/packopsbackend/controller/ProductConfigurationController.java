@@ -38,7 +38,7 @@ public class ProductConfigurationController {
         }
     }
 
-    // TODO: Variante 2 gemäss Controller Layer
+    /* TODO: Variante 2 gemäss Controller Layer
     // GET /api/products?category=...
     @GetMapping
     public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurationsByCategory(
@@ -49,7 +49,7 @@ public class ProductConfigurationController {
         } catch (RuntimeException e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
+    } */
 
     // GET /api/products/{id}
     @GetMapping("/{id}")

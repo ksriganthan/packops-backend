@@ -53,7 +53,7 @@ public class UserService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setPasswordHash(dto.getPassword()); // TODO: Passwort hashen von Teodor
+        user.setPasswordHash(dto.getPassword()); // TODO: Passwort hashen
         user.setRole(dto.getRole());
 
         return toDto(userRepository.save(user));

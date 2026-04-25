@@ -3,6 +3,7 @@ package ch.packops.packopsbackend.security;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.domain.UserSession;
 import ch.packops.packopsbackend.dto.AuthResponseDto;
+import ch.packops.packopsbackend.dto.LoginRequestDto;
 import ch.packops.packopsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -49,12 +50,14 @@ public class AuthService {
         return response;
     }
 
-    public void logout(String token) {
+    public boolean logout(String token) {
         if (!tokenService.isValid(token)) {
             throw new RuntimeException("Invalid token");
         }
 
         tokenService.invalidateToken(token);
+        // Todo
+        return false;
     }
 
     public User authenticate(String token) {
@@ -63,5 +66,10 @@ public class AuthService {
         }
 
         return tokenService.getSessionByToken(token).getUser();
+    }
+
+    public UserSession login(LoginRequestDto dto) {
+        // Todo
+        return new UserSession();
     }
 }
