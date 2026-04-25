@@ -1,7 +1,9 @@
 package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.ProductConfiguration;
+import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
+import ch.packops.packopsbackend.dto.ProductConfigurationUpdateDto;
 import ch.packops.packopsbackend.repository.CategoryRepository;
 import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
 import org.springframework.stereotype.Service;
@@ -52,26 +54,6 @@ public class ProductConfigurationService {
         return dto;
     }
 
-    // DTO → Domain
-    private ProductConfiguration toDomain(ProductConfigurationDto dto) {
-        ProductConfiguration product = new ProductConfiguration();
-        product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
-        product.setDefaultTargetWeight(dto.getDefaultTargetWeight());
-        product.setDefaultTolerance(dto.getDefaultTolerance());
-        product.setPackageUnits(dto.getPackageUnits());
-        product.setIcon(dto.getIcon());
-        product.setColor(dto.getColor());
-        product.setActive(dto.getActive());
-        if (dto.getCategoryName() != null) {
-            categoryRepository.findAll().stream()
-                    .filter(c -> c.getName().equalsIgnoreCase(dto.getCategoryName()))
-                    .findFirst()
-                    .ifPresent(product::setCategory);
-        }
-        return product;
-    }
-
     public List<ProductConfigurationDto> getProductConfigurationsByCategory(String categoryName) {
         if (categoryName != null && !categoryName.isEmpty()) {
             return productConfigurationRepository.findByCategoryName(categoryName)
@@ -86,38 +68,47 @@ public class ProductConfigurationService {
         return toDto(product);
     }
 
-    public ProductConfigurationDto createProductConfiguration(ProductConfigurationDto dto) {
-        if (dto.getName() == null || dto.getName().isEmpty()) {
+    public ProductConfigurationDto createProductConfiguration(ProductConfigurationCreateDto dto) {
+        if (dto.getProductName() == null || dto.getProductName().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be empty");
         }
-        if (dto.getDefaultTargetWeight() < 50 || dto.getDefaultTargetWeight() > 500) {
+        if (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
             throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
         }
-        if (dto.getDefaultTolerance() < 0) {
+        if (dto.getTolerance() < 0) {
             throw new IllegalArgumentException("Tolerance must be positive");
         }
-        return toDto(productConfigurationRepository.save(toDomain(dto)));
+        ProductConfiguration product = new ProductConfiguration();
+        product.setName(dto.getProductName());
+        product.setDescription(dto.getDescription());
+        product.setDefaultTargetWeight(dto.getTargetWeight());
+        product.setDefaultTolerance(dto.getTolerance());
+        product.setIcon(dto.getIcon());
+        product.setColor(dto.getColor());
+
+        if (dto.getCategoryId() != null) {
+            categoryRepository.findById(dto.getCategoryId())
+                    .ifPresent(product::setCategory);
+        }
+
+        return toDto(productConfigurationRepository.save(product));
     }
 
-    public ProductConfigurationDto updateProductConfiguration(Long id, ProductConfigurationDto dto) {
+    public ProductConfigurationDto updateProductConfiguration(Long id, ProductConfigurationUpdateDto dto) {
         ProductConfiguration existing = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        if (dto.getDefaultTargetWeight() < 50 || dto.getDefaultTargetWeight() > 500) {
+        if (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
             throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
         }
-        existing.setName(dto.getName());
+        existing.setName(dto.getProductName());
         existing.setDescription(dto.getDescription());
-        existing.setDefaultTargetWeight(dto.getDefaultTargetWeight());
-        existing.setDefaultTolerance(dto.getDefaultTolerance());
-        existing.setPackageUnits(dto.getPackageUnits());
+        existing.setDefaultTargetWeight(dto.getTargetWeight());
+        existing.setDefaultTolerance(dto.getTolerance());
         existing.setIcon(dto.getIcon());
         existing.setColor(dto.getColor());
-        existing.setActive(dto.getActive());
-        // Ist nötig für das Mapping von dto zu Domain, da Category bei DTO nur ein String ist
-        if (dto.getCategoryName() != null) {
-            categoryRepository.findAll().stream()
-                    .filter(c -> c.getName().equalsIgnoreCase(dto.getCategoryName()))
-                    .findFirst()
+
+        if (dto.getCategoryId() != null) {
+            categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(existing::setCategory);
         }
         return toDto(productConfigurationRepository.save(existing));

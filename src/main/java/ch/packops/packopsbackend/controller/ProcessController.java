@@ -1,5 +1,7 @@
 package ch.packops.packopsbackend.controller;
 
+import ch.packops.packopsbackend.domain.Process;
+import ch.packops.packopsbackend.dto.ProcessDetailDto;
 import ch.packops.packopsbackend.dto.ProcessDto;
 import ch.packops.packopsbackend.dto.ProcessStartDto;
 import ch.packops.packopsbackend.dto.ProcessStatusDto;
@@ -19,8 +21,41 @@ public class ProcessController {
         this.processService = processService;
     }
 
+    /**
+     * @author Kapischan
+     */
+
+    // GET /api/process
+    @GetMapping
+    public ResponseEntity<List<ProcessDto>> getProcesses(
+            @RequestParam String token) {
+        // TODO: Token-Validierung
+        // TODO: Rollenbasierte Filterung
+        try {
+            List<ProcessDto> processes = processService.getAllProcesses();
+            return ResponseEntity.ok(processes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // GET /api/process/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<ProcessDetailDto> getProcess(
+            @PathVariable Long id,
+            @RequestParam String token) {
+        // TODO: Token-Validierung
+        try {
+            ProcessDetailDto process = processService.getProcessById(id);
+            return ResponseEntity.ok(process);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @PostMapping("/start")
-    public ResponseEntity<ProcessDto> startProcess(@RequestBody ProcessStartDto dto) {
+    public ResponseEntity<Process> startProcess(@RequestBody ProcessStartDto dto) {
         return ResponseEntity.ok(processService.startProcess(dto));
     }
 
@@ -35,13 +70,4 @@ public class ProcessController {
         return ResponseEntity.ok(processService.getStatus(id));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProcessDto>> getProcesses() {
-        return ResponseEntity.ok(processService.getProcesses());
-    }
-
-    @GetMapping("/{processId}")
-    public ResponseEntity<ProcessDto> getProcess(@PathVariable Long processId) {
-        return ResponseEntity.ok(processService.getProcess(processId));
-    }
 }

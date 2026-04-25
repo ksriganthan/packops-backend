@@ -1,6 +1,8 @@
 package ch.packops.packopsbackend.controller;
 
+import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
+import ch.packops.packopsbackend.dto.ProductConfigurationUpdateDto;
 import ch.packops.packopsbackend.service.ProductConfigurationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +64,7 @@ public class ProductConfigurationController {
 
     // POST /api/products
     @PostMapping
-    public ResponseEntity<?> createProductConfiguration(@RequestBody ProductConfigurationDto dto, @RequestParam String token) {
+    public ResponseEntity<?> createProductConfiguration(@RequestBody ProductConfigurationCreateDto dto, @RequestParam String token) {
         try {
             ProductConfigurationDto created = productConfigurationService.createProductConfiguration(dto);
             return ResponseEntity.ok(created);
@@ -75,7 +77,7 @@ public class ProductConfigurationController {
 
     // PUT /api/products/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProductConfiguration(@PathVariable Long id, @RequestBody ProductConfigurationDto dto,
+    public ResponseEntity<?> updateProductConfiguration(@PathVariable Long id, @RequestBody ProductConfigurationUpdateDto dto,
                                                         @RequestParam String token) {
         try {
             ProductConfigurationDto updated = productConfigurationService.updateProductConfiguration(id, dto);

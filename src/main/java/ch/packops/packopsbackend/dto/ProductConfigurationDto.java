@@ -1,8 +1,5 @@
 package ch.packops.packopsbackend.dto;
 
-/**
- * @author Kapischan
- */
 public class ProductConfigurationDto {
     private Long id;
     private String name;
