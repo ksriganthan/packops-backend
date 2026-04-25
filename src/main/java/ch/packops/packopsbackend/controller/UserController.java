@@ -1,8 +1,11 @@
 package ch.packops.packopsbackend.controller;
 
+import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
+import ch.packops.packopsbackend.security.AuthService;
+import ch.packops.packopsbackend.security.AuthorizationService;
 import ch.packops.packopsbackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,51 +21,67 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
+    private final AuthorizationService authorizationService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          AuthService authService,
+                          AuthorizationService authorizationService) {
         this.userService = userService;
+        this.authService = authService;
+        this.authorizationService = authorizationService;
     }
+
 
     // POST /api/users
     @PostMapping
     public ResponseEntity<?> createUser(
             @RequestParam String token,
             @RequestBody UserCreateDto dto) {
-        // TODO: Token-Validierung
         try {
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             UserDto created = userService.createUser(dto);
             return ResponseEntity.ok(created);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
     // GET /api/users
     @GetMapping
-    public ResponseEntity<List<UserDto>> getUsers(
+    public ResponseEntity<?> getUsers(
             @RequestParam String token) {
-        // TODO: Token-Validierung
         try {
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             List<UserDto> users = userService.getUsers();
             return ResponseEntity.ok(users);
         } catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
     // GET /api/users/{userId}
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUserById(
+    public ResponseEntity<?> getUserById(
             @PathVariable Long userId,
             @RequestParam String token) {
-        // TODO: Token-Validierung
         try {
-            UserDto user = userService.getUserById(userId);
-            return ResponseEntity.ok(user);
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
+            UserDto dto = userService.getUserById(userId);
+            return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
@@ -72,14 +91,17 @@ public class UserController {
             @PathVariable Long userId,
             @RequestParam String token,
             @RequestBody UserUpdateDto dto) {
-        // TODO: Token-Validierung
         try {
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             UserDto updated = userService.updateUser(userId, dto);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
@@ -88,12 +110,15 @@ public class UserController {
     public ResponseEntity<?> deleteUser(
             @PathVariable Long userId,
             @RequestParam String token) {
-        // TODO: Token-Validierung
         try {
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             userService.deleteUser(userId);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 
@@ -103,14 +128,17 @@ public class UserController {
             @PathVariable Long userId,
             @RequestParam String token,
             @RequestParam String langCode) {
-        // TODO: Token-Validierung
         try {
+            User user = authService.authenticate(token);
+            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
+                return ResponseEntity.status(403).body("Forbidden");
+            }
             UserDto updated = userService.changeLanguage(userId, langCode);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(401).body("Unauthorized");
         }
     }
 }

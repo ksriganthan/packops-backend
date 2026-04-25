@@ -76,6 +76,11 @@ public class ProcessService {
         return toDetailDto(process);
     }
 
+    public Process getProcessDomainById(Long id) {
+        return processRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Process not found with id: " + id));
+    }
+
     public Process startProcess(ProcessStartDto dto) {
         // TODO: implement
         return null;
