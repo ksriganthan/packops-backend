@@ -23,7 +23,13 @@ public class StatisticsService {
         this.packageRepository = packageRepository;
     }
 
-    // Statistiken eines einzelnen Prozesses
+    /**
+     * Gibt Statistiken eines einzelnen Prozesses zurück.
+     * Diese Methode wird aktuell nicht über einen eigenen Endpunkt aufgerufen,
+     * da die Prozessdetails gemäss API-Spezifikation bereits über
+     * GET /api/process/{id} im ProcessController abgerufen werden.
+     * Die Methode bleibt für eine mögliche zukünftige Erweiterung erhalten.
+     */
     public StatisticsDto getProcessStatistics(Long processId) {
         Process process = processRepository.findById(processId)
                 .orElseThrow(() -> new RuntimeException("Process not found with id: " + processId));

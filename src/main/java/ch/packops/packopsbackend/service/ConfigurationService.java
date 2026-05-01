@@ -17,11 +17,14 @@ public class ConfigurationService {
 
     private final ConfigurationRepository configurationRepository;
     private final ValidationService validationService;
+    private final LoggingService loggingService;
 
     public ConfigurationService(ConfigurationRepository configurationRepository,
-                                ValidationService validationService) {
+                                ValidationService validationService,
+                                LoggingService loggingService) {
         this.configurationRepository = configurationRepository;
         this.validationService = validationService;
+        this.loggingService = loggingService;
     }
 
     // Domain → DTO
@@ -64,6 +67,7 @@ public class ConfigurationService {
         existing.setMaxIterations(dto.getMaxIterationsForReject());
         existing.setUpdatedAt(LocalDateTime.now());
 
+        loggingService.logInfo("Konfiguration aktualisiert", null);
         return toDto(configurationRepository.save(existing));
     }
 }

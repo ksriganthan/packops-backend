@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 public class ProcessService {
 
     private final ProcessRepository processRepository;
+    private final LoggingService loggingService;
 
-    public ProcessService(ProcessRepository processRepository) {
+    public ProcessService(ProcessRepository processRepository, LoggingService loggingService) {
         this.processRepository = processRepository;
+        this.loggingService = loggingService;
     }
 
     /**
@@ -58,18 +60,21 @@ public class ProcessService {
     }
 
     public List<ProcessDto> getAllProcesses() {
+        loggingService.logInfo("Prozesshistorie abgerufen", null);
         return processRepository.findAll()
                 .stream().map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<ProcessDto> getProcessesByUserId(Long userId) {
+        loggingService.logInfo("Prozesse abgerufen für User: " + userId, null);
         return processRepository.findByUserId(userId)
                 .stream().map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     public ProcessDetailDto getProcessById(Long id) {
+        loggingService.logInfo("Prozessdetails abgerufen für Prozess: " + id, id);
         Process process = processRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Process not found with id: " + id));
         return toDetailDto(process);

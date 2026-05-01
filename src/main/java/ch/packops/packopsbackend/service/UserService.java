@@ -19,11 +19,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ValidationService validationService;
+    private final LoggingService loggingService;
 
     public UserService(UserRepository userRepository,
-                       ValidationService validationService) {
+                       ValidationService validationService,
+                       LoggingService loggingService) {
         this.userRepository = userRepository;
         this.validationService = validationService;
+        this.loggingService = loggingService;
     }
 
     // Domain → UserDto
@@ -48,7 +51,7 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setPasswordHash(dto.getPassword()); // TODO: Passwort hashen
         user.setRole(dto.getRole());
-
+        loggingService.logInfo("Benutzer erstellt: " + dto.getUsername(), null);
         return toDto(userRepository.save(user));
     }
 
@@ -84,7 +87,7 @@ public class UserService {
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
             existing.setRole(dto.getRole());
         }
-
+        loggingService.logInfo("Benutzer aktualisiert: " + userId, null);
         return toDto(userRepository.save(existing));
     }
 
@@ -92,6 +95,7 @@ public class UserService {
         User existing = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         userRepository.delete(existing);
+        loggingService.logInfo("Benutzer gelöscht: " + userId, null);
     }
 
     public UserDto changeLanguage(Long userId, String langCode) {

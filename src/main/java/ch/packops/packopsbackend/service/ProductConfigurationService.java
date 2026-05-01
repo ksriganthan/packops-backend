@@ -20,14 +20,17 @@ public class ProductConfigurationService {
     private final ProductConfigurationRepository productConfigurationRepository;
     private final CategoryRepository categoryRepository;
     private final ValidationService validationService;
+    private final LoggingService loggingService;
 
     public ProductConfigurationService(
             ProductConfigurationRepository productConfigurationRepository,
             CategoryRepository categoryRepository,
-            ValidationService validationService) {
+            ValidationService validationService,
+            LoggingService loggingService) {
         this.productConfigurationRepository = productConfigurationRepository;
         this.categoryRepository = categoryRepository;
         this.validationService = validationService;
+        this.loggingService = loggingService;
     }
         // Domain → DTO
     private ProductConfigurationDto toDto(ProductConfiguration product) {
@@ -86,6 +89,7 @@ public class ProductConfigurationService {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(product::setCategory);
         }
+        loggingService.logInfo("Produkt erstellt: " + dto.getProductName(), null);
         return toDto(productConfigurationRepository.save(product));
     }
 
@@ -107,6 +111,7 @@ public class ProductConfigurationService {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(existing::setCategory);
         }
+        loggingService.logInfo("Produkt aktualisiert: " + id, null);
         return toDto(productConfigurationRepository.save(existing));
     }
 
@@ -114,5 +119,6 @@ public class ProductConfigurationService {
         ProductConfiguration existing = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
         productConfigurationRepository.delete(existing);
+        loggingService.logInfo("Produkt gelöscht: " + id, null);
     }
 }
