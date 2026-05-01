@@ -1,6 +1,5 @@
 package ch.packops.packopsbackend.service;
 
-import ch.packops.packopsbackend.domain.PackageUnit;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.dto.*;
 import ch.packops.packopsbackend.repository.ProcessRepository;

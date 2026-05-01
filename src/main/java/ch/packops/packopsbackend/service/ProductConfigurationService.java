@@ -19,24 +19,17 @@ public class ProductConfigurationService {
 
     private final ProductConfigurationRepository productConfigurationRepository;
     private final CategoryRepository categoryRepository;
+    private final ValidationService validationService;
 
     public ProductConfigurationService(
             ProductConfigurationRepository productConfigurationRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository,
+            ValidationService validationService) {
         this.productConfigurationRepository = productConfigurationRepository;
         this.categoryRepository = categoryRepository;
+        this.validationService = validationService;
     }
-
-    public List<ProductConfigurationDto> getProductConfigurations(String categoryName) {
-        if (categoryName != null && !categoryName.isEmpty()) {
-            return productConfigurationRepository.findByCategoryName(categoryName)
-                    .stream().map(this::toDto).collect(Collectors.toList());
-        }
-        return productConfigurationRepository.findAll()
-                .stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    // Domain → DTO
+        // Domain → DTO
     private ProductConfigurationDto toDto(ProductConfiguration product) {
         ProductConfigurationDto dto = new ProductConfigurationDto();
         dto.setId(product.getId());
@@ -54,6 +47,15 @@ public class ProductConfigurationService {
         return dto;
     }
 
+    public List<ProductConfigurationDto> getProductConfigurations(String categoryName) {
+        if (categoryName != null && !categoryName.isEmpty()) {
+            return productConfigurationRepository.findByCategoryName(categoryName)
+                    .stream().map(this::toDto).collect(Collectors.toList());
+        }
+        return productConfigurationRepository.findAll()
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
     public List<ProductConfigurationDto> getProductConfigurationsByCategory(String categoryName) {
         if (categoryName != null && !categoryName.isEmpty()) {
             return productConfigurationRepository.findByCategoryName(categoryName)
@@ -69,15 +71,9 @@ public class ProductConfigurationService {
     }
 
     public ProductConfigurationDto createProductConfiguration(ProductConfigurationCreateDto dto) {
-        if (dto.getProductName() == null || dto.getProductName().isEmpty()) {
-            throw new IllegalArgumentException("Product name cannot be empty");
-        }
-        if (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
-            throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
-        }
-        if (dto.getTolerance() < 0) {
-            throw new IllegalArgumentException("Tolerance must be positive");
-        }
+        // Validierung über ValidationService
+        validationService.validateProduct(dto);
+
         ProductConfiguration product = new ProductConfiguration();
         product.setName(dto.getProductName());
         product.setDescription(dto.getDescription());
@@ -90,16 +86,16 @@ public class ProductConfigurationService {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(product::setCategory);
         }
-
         return toDto(productConfigurationRepository.save(product));
     }
 
     public ProductConfigurationDto updateProductConfiguration(Long id, ProductConfigurationUpdateDto dto) {
+        // Validierung über ValidationService
+        validationService.validateProductUpdate(dto);
+
         ProductConfiguration existing = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        if (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
-            throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
-        }
+
         existing.setName(dto.getProductName());
         existing.setDescription(dto.getDescription());
         existing.setDefaultTargetWeight(dto.getTargetWeight());

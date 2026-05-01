@@ -18,9 +18,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ValidationService validationService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository,
+                       ValidationService validationService) {
         this.userRepository = userRepository;
+        this.validationService = validationService;
     }
 
     // Domain → UserDto
@@ -37,18 +40,8 @@ public class UserService {
     }
 
     public UserDto createUser(UserCreateDto dto) {
-        if (dto.getUsername() == null || dto.getUsername().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be empty");
-        }
-        if (dto.getEmail() == null || dto.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
-        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists");
-        }
+        // Validierung über ValidationService
+        validationService.validateUser(dto);
 
         User user = new User();
         user.setUsername(dto.getUsername());
@@ -72,6 +65,10 @@ public class UserService {
     }
 
     public UserDto updateUser(Long userId, UserUpdateDto dto) {
+
+        // Validierung über ValidationService
+        validationService.validateUserUpdate(dto);
+
         User existing = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 

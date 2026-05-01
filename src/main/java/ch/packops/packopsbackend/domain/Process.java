@@ -28,6 +28,8 @@ public class Process {
 
     private LocalDateTime endTimestamp;
 
+    private Integer deadlocksDetected;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -109,5 +111,13 @@ public class Process {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Integer getDeadlocksDetected() {
+        return deadlocksDetected;
+    }
+
+    public void setDeadlocksDetected(Integer deadlocksDetected) {
+        this.deadlocksDetected = deadlocksDetected;
     }
 }

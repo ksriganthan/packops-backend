@@ -16,9 +16,12 @@ import java.util.List;
 public class ConfigurationService {
 
     private final ConfigurationRepository configurationRepository;
+    private final ValidationService validationService;
 
-    public ConfigurationService(ConfigurationRepository configurationRepository) {
+    public ConfigurationService(ConfigurationRepository configurationRepository,
+                                ValidationService validationService) {
         this.configurationRepository = configurationRepository;
+        this.validationService = validationService;
     }
 
     // Domain → DTO
@@ -50,13 +53,8 @@ public class ConfigurationService {
     }
 
     public ConfigurationDto updateConfiguration(ConfigurationDto dto) {
-        // Validierung gemäss Spezifikation
-        if (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
-            throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
-        }
-        if (dto.getTolerance() < 0) {
-            throw new IllegalArgumentException("Tolerance must be positive");
-        }
+        // Validierung über ValidationService
+        validationService.validateConfiguration(dto);
 
         List<Configuration> configs = configurationRepository.findAll();
         Configuration existing = configs.isEmpty() ? new Configuration() : configs.get(0);
