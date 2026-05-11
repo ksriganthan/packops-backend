@@ -6,6 +6,7 @@ import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import ch.packops.packopsbackend.security.PasswordService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,13 +21,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
     private final LoggingService loggingService;
+    private final PasswordService passwordService;
 
     public UserService(UserRepository userRepository,
                        ValidationService validationService,
-                       LoggingService loggingService) {
+                       LoggingService loggingService,
+                       PasswordService passwordService) {
         this.userRepository = userRepository;
         this.validationService = validationService;
         this.loggingService = loggingService;
+        this.passwordService = passwordService;
     }
 
     // Domain → UserDto
@@ -49,7 +53,7 @@ public class UserService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setPasswordHash(dto.getPassword()); // TODO: Passwort hashen
+        user.setPasswordHash(passwordService.hash(dto.getPassword()));
         user.setRole(dto.getRole());
         loggingService.logInfo("Benutzer erstellt: " + dto.getUsername(), null);
         return toDto(userRepository.save(user));
@@ -82,7 +86,7 @@ public class UserService {
             existing.setEmail(dto.getEmail());
         }
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            existing.setPasswordHash(dto.getPassword()); // TODO: Passwort hashen von Teodor
+            existing.setPasswordHash(passwordService.hash(dto.getPassword()));
         }
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
             existing.setRole(dto.getRole());

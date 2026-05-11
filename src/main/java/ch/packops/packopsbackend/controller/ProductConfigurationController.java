@@ -1,127 +1,86 @@
 package ch.packops.packopsbackend.controller;
 
-import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationUpdateDto;
-import ch.packops.packopsbackend.security.AuthService;
-import ch.packops.packopsbackend.security.AuthorizationService;
 import ch.packops.packopsbackend.service.ProductConfigurationService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-/**
- * @author Kapischan
- */
-
-//TODO: Für Variante 1 oder 2 entscheiden
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductConfigurationController {
 
     private final ProductConfigurationService productConfigurationService;
-    private final AuthService authService;
-    private final AuthorizationService authorizationService;
 
-    public ProductConfigurationController(
-            ProductConfigurationService productConfigurationService,
-            AuthService authService,
-            AuthorizationService authorizationService) {
+    public ProductConfigurationController(ProductConfigurationService productConfigurationService) {
         this.productConfigurationService = productConfigurationService;
-        this.authService = authService;
-        this.authorizationService = authorizationService;
     }
 
-    // TODO: Variante 1 gemäss REST-API-Spezifikation
-    // GET /api/products
-    @GetMapping
-    public ResponseEntity<?> getProductConfigurations(
-            @RequestParam(required = false) String category, @RequestParam String token) {
-        try {
-            authService.authenticate(token); // Alle dürfen lesen
-            List<ProductConfigurationDto> productConfigurations = productConfigurationService.getProductConfigurations(category);
-            return ResponseEntity.ok(productConfigurations);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-    }
-
-    /* TODO: Variante 2 gemäss Controller Layer
     // GET /api/products?category=...
+    // Alle eingeloggten User duerfen lesen
     @GetMapping
-    public ResponseEntity<?> getProductConfigurationsByCategory(
-            @RequestParam(required = true) String category, @RequestParam String token) {
-        try {
-            authService.authenticate(token); // Alle dürfen lesen
-            List<ProductConfigurationDto> productConfigurations = productConfigurationService.getProductConfigurationsByCategory(category);
-            return ResponseEntity.ok(productConfigurations);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-    } */
+    public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurations(
+            @RequestParam(required = false) String category) {
+
+        return ResponseEntity.ok(
+                productConfigurationService.getProductConfigurations(category)
+        );
+    }
 
     // GET /api/products/{id}
+    // Alle eingeloggten User duerfen lesen
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductConfiguration(@PathVariable Long id, @RequestParam String token) {
-        try {
-            authService.authenticate(token); // Alle dürfen lesen
-            ProductConfigurationDto product = productConfigurationService.getProductConfiguration(id);
-            return ResponseEntity.ok(product);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<ProductConfigurationDto> getProductConfiguration(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                productConfigurationService.getProductConfiguration(id)
+        );
     }
 
     // POST /api/products
+    // Nur admin gemaess SecurityConfig
     @PostMapping
-    public ResponseEntity<?> createProductConfiguration(@RequestBody ProductConfigurationCreateDto dto, @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageProductConfigurations(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            ProductConfigurationDto created = productConfigurationService.createProductConfiguration(dto);
-            return ResponseEntity.ok(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<ProductConfigurationDto> createProductConfiguration(
+            @Valid @RequestBody ProductConfigurationCreateDto dto) {
+
+        ProductConfigurationDto created =
+                productConfigurationService.createProductConfiguration(dto);
+
+        return ResponseEntity.ok(created);
     }
 
     // PUT /api/products/{id}
+    // Nur admin gemaess SecurityConfig
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProductConfiguration(@PathVariable Long id, @RequestBody ProductConfigurationUpdateDto dto,
-                                                        @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageProductConfigurations(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            ProductConfigurationDto updated = productConfigurationService.updateProductConfiguration(id, dto);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<ProductConfigurationDto> updateProductConfiguration(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductConfigurationUpdateDto dto) {
+
+        ProductConfigurationDto updated =
+                productConfigurationService.updateProductConfiguration(id, dto);
+
+        return ResponseEntity.ok(updated);
     }
 
     // DELETE /api/products/{id}
+    // Nur admin gemaess SecurityConfig
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProductConfiguration(@PathVariable Long id,  @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageProductConfigurations(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            productConfigurationService.deleteProductConfiguration(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<Void> deleteProductConfiguration(@PathVariable Long id) {
+        productConfigurationService.deleteProductConfiguration(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }

@@ -1,15 +1,16 @@
 package ch.packops.packopsbackend.controller;
 
 import ch.packops.packopsbackend.domain.Process;
-import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.ProcessDetailDto;
 import ch.packops.packopsbackend.dto.ProcessDto;
 import ch.packops.packopsbackend.dto.ProcessStartDto;
 import ch.packops.packopsbackend.dto.ProcessStatusDto;
-import ch.packops.packopsbackend.security.AuthService;
-import ch.packops.packopsbackend.security.AuthorizationService;
 import ch.packops.packopsbackend.service.ProcessService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,77 +19,109 @@ import java.util.List;
 @RequestMapping("/api/process")
 public class ProcessController {
 
-    private final ProcessService processService;
-    private final AuthService authService;
-    private final AuthorizationService authorizationService;
+    private static final String ROLE_ADMIN = "admin";
 
-    public ProcessController(ProcessService processService,
-                             AuthService authService,
-                             AuthorizationService authorizationService) {
+    private final ProcessService processService;
+
+    public ProcessController(ProcessService processService) {
         this.processService = processService;
-        this.authService = authService;
-        this.authorizationService = authorizationService;
     }
 
-    /**
-     * @author Kapischan
-     */
-
     // GET /api/process
+    // Admin sieht alle Prozesse, andere User nur eigene Prozesse
     @GetMapping
-    public ResponseEntity<?> getProcesses(@RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (authorizationService.canManageUsers(user)) {
-                // Admin → alle Prozesse
-                List<ProcessDto> processes = processService.getAllProcesses();
-                return ResponseEntity.ok(processes);
-            } else {
-                // Operator → nur eigene Prozesse
-                List<ProcessDto> processes = processService.getProcessesByUserId(user.getId());
-                return ResponseEntity.ok(processes);
-            }
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
+    public ResponseEntity<List<ProcessDto>> getProcesses(@AuthenticationPrincipal Jwt jwt) {
+        if (isAdmin(jwt)) {
+            return ResponseEntity.ok(processService.getAllProcesses());
         }
+
+        Long userId = getCurrentUserId(jwt);
+        return ResponseEntity.ok(processService.getProcessesByUserId(userId));
     }
 
     // GET /api/process/{id}
+    // Admin sieht alle, andere User nur eigene Prozesse
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProcess(
+    public ResponseEntity<ProcessDetailDto> getProcess(
             @PathVariable Long id,
-            @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            ProcessDetailDto process = processService.getProcessById(id);
-            Process domainProcess = processService.getProcessDomainById(id);
-            if (!authorizationService.canViewProcess(user, domainProcess)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            return ResponseEntity.ok(process);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Process domainProcess = processService.getProcessDomainById(id);
+
+        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        return ResponseEntity.ok(processService.getProcessById(id));
     }
 
-
+    // POST /api/process/start
+    // Nur admin/operator gemaess SecurityConfig
     @PostMapping("/start")
-    public ResponseEntity<Process> startProcess(@RequestBody ProcessStartDto dto) {
-        // Todo
+    public ResponseEntity<Process> startProcess(
+            @Valid @RequestBody ProcessStartDto dto) {
+
         return ResponseEntity.ok(processService.startProcess(dto));
     }
 
+    // POST /api/process/{id}/stop
+    // Nur admin/operator gemaess SecurityConfig
     @PostMapping("/{id}/stop")
-    public ResponseEntity<Void> stopProcess(@PathVariable Long id) {
-        // Todo
+    public ResponseEntity<Void> stopProcess(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Process domainProcess = processService.getProcessDomainById(id);
+
+        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         processService.stopProcess(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
+    // GET /api/process/{id}/status
     @GetMapping("/{id}/status")
-    public ResponseEntity<ProcessStatusDto> getStatus(@PathVariable Long id) {
-        // Todo
+    public ResponseEntity<ProcessStatusDto> getStatus(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Process domainProcess = processService.getProcessDomainById(id);
+
+        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return ResponseEntity.ok(processService.getStatus(id));
     }
 
+    private boolean isAdmin(Jwt jwt) {
+        String role = jwt.getClaimAsString("role");
+        return ROLE_ADMIN.equalsIgnoreCase(role);
+    }
+
+    private Long getCurrentUserId(Jwt jwt) {
+        return jwt.getClaim("userId");
+    }
+
+    private boolean isOwnProcess(Jwt jwt, Process process) {
+        Long currentUserId = getCurrentUserId(jwt);
+
+        return currentUserId != null
+                && process != null
+                && process.getUser() != null
+                && process.getUser().getId() != null
+                && process.getUser().getId().equals(currentUserId);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
 }

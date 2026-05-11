@@ -1,58 +1,44 @@
 package ch.packops.packopsbackend.controller;
-import ch.packops.packopsbackend.domain.User;
+
 import ch.packops.packopsbackend.dto.ConfigurationDto;
-import ch.packops.packopsbackend.security.AuthService;
-import ch.packops.packopsbackend.security.AuthorizationService;
 import ch.packops.packopsbackend.service.ConfigurationService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-/**
- * @author Kapischan
- */
 
 @RestController
 @RequestMapping("/api/configuration")
 public class ConfigurationController {
 
     private final ConfigurationService configurationService;
-    private final AuthService authService;
-    private final AuthorizationService authorizationService;
 
-    public ConfigurationController(ConfigurationService configurationService,
-                                   AuthService authService,
-                                   AuthorizationService authorizationService) {
+    public ConfigurationController(ConfigurationService configurationService) {
         this.configurationService = configurationService;
-        this.authService = authService;
-        this.authorizationService = authorizationService;
     }
 
     // GET /api/configuration
+    // Alle eingeloggten User duerfen lesen
     @GetMapping
-    public ResponseEntity<?> getConfiguration(@RequestParam String token) {
-        try {
-            authService.authenticate(token); // Alle dürfen lesen
-            ConfigurationDto config = configurationService.getConfiguration();
-            return ResponseEntity.ok(config);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<ConfigurationDto> getConfiguration() {
+        return ResponseEntity.ok(configurationService.getConfiguration());
     }
 
     // PUT /api/configuration
+    // Nur admin/operator gemaess SecurityConfig
     @PutMapping
-    public ResponseEntity<?> updateConfiguration(@RequestBody ConfigurationDto dto, @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canUpdateConfiguration(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            ConfigurationDto updated = configurationService.updateConfiguration(dto);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<ConfigurationDto> updateConfiguration(
+            @Valid @RequestBody ConfigurationDto dto) {
+        return ResponseEntity.ok(configurationService.updateConfiguration(dto));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }

@@ -1,144 +1,114 @@
 package ch.packops.packopsbackend.controller;
 
-import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
-import ch.packops.packopsbackend.security.AuthService;
-import ch.packops.packopsbackend.security.AuthorizationService;
 import ch.packops.packopsbackend.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-/**
- * @author Kapischan
- */
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService userService;
-    private final AuthService authService;
-    private final AuthorizationService authorizationService;
+    private static final String ROLE_ADMIN = "admin";
 
-    public UserController(UserService userService,
-                          AuthService authService,
-                          AuthorizationService authorizationService) {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.authService = authService;
-        this.authorizationService = authorizationService;
     }
 
-
     // POST /api/users
+    // Nur Admin gemäss SecurityConfig
     @PostMapping
-    public ResponseEntity<?> createUser(
-            @RequestParam String token,
-            @RequestBody UserCreateDto dto) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            UserDto created = userService.createUser(dto);
-            return ResponseEntity.ok(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto dto) {
+        UserDto created = userService.createUser(dto);
+        return ResponseEntity.ok(created);
     }
 
     // GET /api/users
+    // Nur Admin gemäss SecurityConfig
     @GetMapping
-    public ResponseEntity<?> getUsers(
-            @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            List<UserDto> users = userService.getUsers();
-            return ResponseEntity.ok(users);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<List<UserDto>> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
     // GET /api/users/{userId}
+    // Admin darf alle sehen, User darf sich selbst sehen
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(
+    public ResponseEntity<UserDto> getUserById(
             @PathVariable Long userId,
-            @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            UserDto dto = userService.getUserById(userId);
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            @AuthenticationPrincipal Jwt jwt) {
+
+        if (!isAdmin(jwt) && !isOwnUser(jwt, userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     // PUT /api/users/{userId}
+    // Admin darf alle bearbeiten, User darf sich selbst bearbeiten
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<UserDto> updateUser(
             @PathVariable Long userId,
-            @RequestParam String token,
-            @RequestBody UserUpdateDto dto) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            UserDto updated = userService.updateUser(userId, dto);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            @Valid @RequestBody UserUpdateDto dto,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        if (!isAdmin(jwt) && !isOwnUser(jwt, userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        return ResponseEntity.ok(userService.updateUser(userId, dto));
     }
 
     // DELETE /api/users/{userId}
+    // Nur Admin gemäss SecurityConfig
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(
-            @PathVariable Long userId,
-            @RequestParam String token) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            userService.deleteUser(userId);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
     }
 
     // PUT /api/users/{userId}/language
+    // Admin darf alle ändern, User darf eigene Sprache ändern
     @PutMapping("/{userId}/language")
-    public ResponseEntity<?> changeLanguage(
+    public ResponseEntity<UserDto> changeLanguage(
             @PathVariable Long userId,
-            @RequestParam String token,
-            @RequestParam String langCode) {
-        try {
-            User user = authService.authenticate(token);
-            if (!authorizationService.canManageUsers(user) && !user.getId().equals(userId)) {
-                return ResponseEntity.status(403).body("Forbidden");
-            }
-            UserDto updated = userService.changeLanguage(userId, langCode);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            @RequestParam String langCode,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        if (!isAdmin(jwt) && !isOwnUser(jwt, userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+        return ResponseEntity.ok(userService.changeLanguage(userId, langCode));
+    }
+
+    private boolean isAdmin(Jwt jwt) {
+        String role = jwt.getClaimAsString("role");
+        return ROLE_ADMIN.equalsIgnoreCase(role);
+    }
+
+    private boolean isOwnUser(Jwt jwt, Long userId) {
+        Long currentUserId = jwt.getClaim("userId");
+        return currentUserId != null && currentUserId.equals(userId);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }

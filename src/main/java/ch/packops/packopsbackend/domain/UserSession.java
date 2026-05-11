@@ -12,6 +12,7 @@ public class UserSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 2048, unique = true)
     private String token;
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;

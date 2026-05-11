@@ -3,6 +3,8 @@ package ch.packops.packopsbackend.controller;
 import ch.packops.packopsbackend.dto.AuthResponseDto;
 import ch.packops.packopsbackend.dto.LoginRequestDto;
 import ch.packops.packopsbackend.security.AuthService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,25 +18,34 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // POST /api/auth/login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
-        try {
-            AuthResponseDto response = authService.login(dto.getUsername(), dto.getPassword());
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Invalid username or password");
-        }
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
+        AuthResponseDto response = authService.login(dto);
+        return ResponseEntity.ok(response);
     }
 
-    // POST /api/auth/logout
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestParam String token) {
-        try {
-            authService.logout(token);
-            return ResponseEntity.ok().body("Logout successful");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Invalid token");
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = extractBearerToken(authorizationHeader);
+        authService.logout(token);
+        return ResponseEntity.noContent().build();
+    }
+
+    private String extractBearerToken(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid authorization header");
         }
+        return authorizationHeader.substring(7);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        if ("Invalid username or password".equals(ex.getMessage())
+                || "Invalid token".equals(ex.getMessage())
+                || "Invalid authorization header".equals(ex.getMessage())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }
