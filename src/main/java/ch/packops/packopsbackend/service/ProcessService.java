@@ -99,13 +99,4 @@ public class ProcessService {
         return null;
     }
 
-    public List<Process> getProcesses() {
-        // TODO: implement
-        return null;
-    }
-
-    public Process getProcess(Long processId) {
-        // TODO: implement
-        return null;
-    }
 }
