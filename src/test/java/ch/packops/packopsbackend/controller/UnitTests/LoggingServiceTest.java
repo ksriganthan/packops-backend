@@ -1,4 +1,4 @@
-package ch.packops.packopsbackend.service.UnitTests;
+package ch.packops.packopsbackend.controller.UnitTests;
 
 import ch.packops.packopsbackend.domain.AuditLog;
 import ch.packops.packopsbackend.domain.Process;

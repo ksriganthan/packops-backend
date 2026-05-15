@@ -1,4 +1,4 @@
-package ch.packops.packopsbackend.service.UnitTests;
+package ch.packops.packopsbackend.controller.UnitTests;
 import ch.packops.packopsbackend.domain.Configuration;
 import ch.packops.packopsbackend.dto.ConfigurationDto;
 import ch.packops.packopsbackend.repository.ConfigurationRepository;
