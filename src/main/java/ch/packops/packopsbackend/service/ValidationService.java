@@ -48,13 +48,15 @@ public class ValidationService {
         if (dto == null) {
             throw new IllegalArgumentException("Product cannot be null");
         }
-        if (dto.getProductName() == null || dto.getProductName().isEmpty()) {
+        
+        // Partial Update: Nur vorhandene (nicht-null) Felder validieren
+        if (dto.getProductName() != null && dto.getProductName().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be empty");
         }
-        if (dto.getTargetWeight() == null || dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
+        if (dto.getTargetWeight() != null && (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500)) {
             throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
         }
-        if (dto.getTolerance() == null || dto.getTolerance() < 0) {
+        if (dto.getTolerance() != null && dto.getTolerance() < 0) {
             throw new IllegalArgumentException("Tolerance must be positive");
         }
     }

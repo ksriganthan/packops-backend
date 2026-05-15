@@ -100,17 +100,30 @@ public class ProductConfigurationService {
         ProductConfiguration existing = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        existing.setName(dto.getProductName());
-        existing.setDescription(dto.getDescription());
-        existing.setDefaultTargetWeight(dto.getTargetWeight());
-        existing.setDefaultTolerance(dto.getTolerance());
-        existing.setIcon(dto.getIcon());
-        existing.setColor(dto.getColor());
-
+        // Partial Update: Nur nicht-null Felder werden aktualisiert
+        if (dto.getProductName() != null) {
+            existing.setName(dto.getProductName());
+        }
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
+        }
+        if (dto.getTargetWeight() != null) {
+            existing.setDefaultTargetWeight(dto.getTargetWeight());
+        }
+        if (dto.getTolerance() != null) {
+            existing.setDefaultTolerance(dto.getTolerance());
+        }
+        if (dto.getIcon() != null) {
+            existing.setIcon(dto.getIcon());
+        }
+        if (dto.getColor() != null) {
+            existing.setColor(dto.getColor());
+        }
         if (dto.getCategoryId() != null) {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(existing::setCategory);
         }
+
         loggingService.logInfo("Produkt aktualisiert: " + id, null);
         return toDto(productConfigurationRepository.save(existing));
     }
