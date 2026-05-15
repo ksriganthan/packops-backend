@@ -2,7 +2,9 @@ package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.dto.*;
+import ch.packops.packopsbackend.repository.ConfigurationRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
+import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,10 +14,18 @@ import java.util.stream.Collectors;
 public class ProcessService {
 
     private final ProcessRepository processRepository;
+    private final ProductConfigurationRepository productConfigurationRepository;
+    private final ConfigurationRepository configurationRepository;
     private final LoggingService loggingService;
 
-    public ProcessService(ProcessRepository processRepository, LoggingService loggingService) {
+    public ProcessService(
+            ProcessRepository processRepository,
+            ProductConfigurationRepository productConfigurationRepository,
+            ConfigurationRepository configurationRepository,
+            LoggingService loggingService) {
         this.processRepository = processRepository;
+        this.productConfigurationRepository = productConfigurationRepository;
+        this.configurationRepository = configurationRepository;
         this.loggingService = loggingService;
     }
 
@@ -38,6 +48,12 @@ public class ProcessService {
         if (process.getUser() != null) {
             dto.setUserId(process.getUser().getId());
         }
+        if (process.getProductConfiguration() != null) {
+            dto.setProductConfigurationId(process.getProductConfiguration().getId());
+        }
+        if (process.getConfiguration() != null) {
+            dto.setConfigurationId(process.getConfiguration().getId());
+        }
         return dto;
     }
 
@@ -55,6 +71,12 @@ public class ProcessService {
         dto.setUnitsPacked(process.getUnitsPacked());
         if (process.getUser() != null) {
             dto.setUserId(process.getUser().getId());
+        }
+        if (process.getProductConfiguration() != null) {
+            dto.setProductConfigurationId(process.getProductConfiguration().getId());
+        }
+        if (process.getConfiguration() != null) {
+            dto.setConfigurationId(process.getConfiguration().getId());
         }
         return dto;
     }

@@ -6,6 +6,8 @@ public class ProcessDto {
 
     private Long processId;
     private Long userId;
+    private Long productConfigurationId;
+    private Long configurationId;
     private String status;
     private LocalDateTime startTimestamp;
     private LocalDateTime endTimestamp;
@@ -96,5 +98,21 @@ public class ProcessDto {
 
     public void setUnitsPacked(Integer unitsPacked) {
         this.unitsPacked = unitsPacked;
+    }
+
+    public Long getProductConfigurationId() {
+        return productConfigurationId;
+    }
+
+    public void setProductConfigurationId(Long productConfigurationId) {
+        this.productConfigurationId = productConfigurationId;
+    }
+
+    public Long getConfigurationId() {
+        return configurationId;
+    }
+
+    public void setConfigurationId(Long configurationId) {
+        this.configurationId = configurationId;
     }
 }

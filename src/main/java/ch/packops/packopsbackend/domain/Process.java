@@ -34,6 +34,14 @@ public class Process {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "productconfiguration_id")
+    private ProductConfiguration productConfiguration;
+
+    @ManyToOne
+    @JoinColumn(name = "configuration_id")
+    private Configuration configuration;
+
     public Process() {
     }
 
@@ -119,5 +127,21 @@ public class Process {
 
     public void setDeadlocksDetected(Integer deadlocksDetected) {
         this.deadlocksDetected = deadlocksDetected;
+    }
+
+    public ProductConfiguration getProductConfiguration() {
+        return productConfiguration;
+    }
+
+    public void setProductConfiguration(ProductConfiguration productConfiguration) {
+        this.productConfiguration = productConfiguration;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 }

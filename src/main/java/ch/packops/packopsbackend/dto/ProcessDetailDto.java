@@ -6,6 +6,8 @@ import java.util.List;
 public class ProcessDetailDto {
     private Long id;
     private Long userId;
+    private Long productConfigurationId;
+    private Long configurationId;
     private String status;
     private LocalDateTime startTimestamp;
     private LocalDateTime endTimestamp;
@@ -105,5 +107,21 @@ public class ProcessDetailDto {
 
     public void setPackages(List<PackageUnitDto> packages) {
         this.packages = packages;
+    }
+
+    public Long getProductConfigurationId() {
+        return productConfigurationId;
+    }
+
+    public void setProductConfigurationId(Long productConfigurationId) {
+        this.productConfigurationId = productConfigurationId;
+    }
+
+    public Long getConfigurationId() {
+        return configurationId;
+    }
+
+    public void setConfigurationId(Long configurationId) {
+        this.configurationId = configurationId;
     }
 }
