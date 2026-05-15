@@ -7,6 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author Kapischan Sriganthan
+ */
+
 @RestController
 @RequestMapping("/api/configuration")
 public class ConfigurationController {
