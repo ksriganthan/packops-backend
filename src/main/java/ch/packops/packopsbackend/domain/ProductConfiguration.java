@@ -17,7 +17,7 @@ public class ProductConfiguration {
     private Integer packageUnits;
     private String icon;
     private String color;
-    private Boolean active;
+    private Boolean active = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

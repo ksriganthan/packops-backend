@@ -86,19 +86,15 @@ public class ProductConfigurationService {
         product.setIcon(dto.getIcon());
         product.setColor(dto.getColor());
 
-        System.out.println(dto.getCategoryName());
-
         if (dto.getCategoryId() != null) {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(product::setCategory);
         } else if (dto.getCategoryName() != null) {
-            System.out.println(dto.getCategoryName());
             categoryRepository.findByName(dto.getCategoryName())
                     .ifPresentOrElse(product::setCategory,
                             () -> {
                                 Category newCat = new Category();
                                 newCat.setName(dto.getCategoryName());
-                                System.out.println(dto.getCategoryName());
                                 categoryRepository.save(newCat);
                                 product.setCategory(newCat);
                             }
@@ -143,7 +139,6 @@ public class ProductConfigurationService {
                             () -> {
                                 Category newCat = new Category();
                                 newCat.setName(dto.getCategoryName());
-                                System.out.println(dto.getCategoryName());
                                 categoryRepository.save(newCat);
                                 existing.setCategory(newCat);
                             }
