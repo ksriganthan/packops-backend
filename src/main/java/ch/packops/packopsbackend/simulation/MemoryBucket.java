@@ -4,33 +4,69 @@ import ch.packops.packopsbackend.domain.Portion;
 
 public class MemoryBucket implements Bucket {
 
+    private final int bucketNr;
+    private Portion portion;
+    private int iterations;
+    private int maxIterationsForReject;
+
+    public MemoryBucket(int bucketNr, int maxIterationsForReject) {
+        this.bucketNr = bucketNr;
+        this.maxIterationsForReject = maxIterationsForReject;
+    }
+
     @Override
     public void fill(Portion portion) {
-        // TODO: implement
+        if (portion == null) {
+            throw new IllegalArgumentException("portion must not be null");
+        }
+        if (!isEmpty()) {
+            throw new IllegalStateException("MemoryBucket is already filled");
+        }
+        this.portion = portion;
+        this.portion.setBucketNr(bucketNr);
+        this.iterations = 0;
     }
 
     @Override
     public Portion releasePortion() {
-        // TODO: implement
-        return null;
+        Portion released = portion;
+        portion = null;
+        iterations = 0;
+        return released;
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO: implement
-        return true;
+        return portion == null;
     }
 
     public void incrementIterations() {
-        // TODO: implement
+        if (!isEmpty()) {
+            iterations++;
+        }
     }
 
     public void resetIterations() {
-        // TODO: implement
+        iterations = 0;
     }
 
     public boolean isDeadlocked() {
-        // TODO: implement
-        return false;
+        return !isEmpty() && iterations >= maxIterationsForReject;
+    }
+
+    public int getBucketNr() {
+        return bucketNr;
+    }
+
+    public Portion getPortion() {
+        return portion;
+    }
+
+    public int getIterations() {
+        return iterations;
+    }
+
+    public void setMaxIterationsForReject(int maxIterationsForReject) {
+        this.maxIterationsForReject = maxIterationsForReject;
     }
 }

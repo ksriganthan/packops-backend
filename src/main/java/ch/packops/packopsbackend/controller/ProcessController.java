@@ -58,10 +58,11 @@ public class ProcessController {
     // POST /api/process/start
     // Nur admin/operator gemaess SecurityConfig
     @PostMapping("/start")
-    public ResponseEntity<Process> startProcess(
-            @Valid @RequestBody ProcessStartDto dto) {
+    public ResponseEntity<ProcessDto> startProcess(
+            @Valid @RequestBody ProcessStartDto dto,
+            @AuthenticationPrincipal Jwt jwt) {
 
-        return ResponseEntity.ok(processService.startProcess(dto));
+        return ResponseEntity.ok(processService.startProcessDto(dto, getCurrentUserId(jwt)));
     }
 
     // POST /api/process/{id}/stop
@@ -97,12 +98,15 @@ public class ProcessController {
     }
 
     private boolean isAdmin(Jwt jwt) {
+        if (jwt == null) {
+            return false;
+        }
         String role = jwt.getClaimAsString("role");
         return ROLE_ADMIN.equalsIgnoreCase(role);
     }
 
     private Long getCurrentUserId(Jwt jwt) {
-        return jwt.getClaim("userId");
+        return jwt != null ? jwt.getClaim("userId") : null;
     }
 
     private boolean isOwnProcess(Jwt jwt, Process process) {

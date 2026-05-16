@@ -4,20 +4,32 @@ import ch.packops.packopsbackend.domain.Portion;
 
 public class BufferBucket implements Bucket {
 
+    private Portion portion;
+
     @Override
     public void fill(Portion portion) {
-        // TODO: implement
+        if (portion == null) {
+            throw new IllegalArgumentException("portion must not be null");
+        }
+        if (!isEmpty()) {
+            throw new IllegalStateException("BufferBucket is already filled");
+        }
+        this.portion = portion;
     }
 
     @Override
     public Portion releasePortion() {
-        // TODO: implement
-        return null;
+        Portion released = portion;
+        portion = null;
+        return released;
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO: implement
-        return true;
+        return portion == null;
+    }
+
+    public Portion getPortion() {
+        return portion;
     }
 }
