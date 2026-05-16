@@ -1,5 +1,6 @@
 package ch.packops.packopsbackend.service;
 
+import ch.packops.packopsbackend.domain.Category;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
 import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
@@ -85,9 +86,23 @@ public class ProductConfigurationService {
         product.setIcon(dto.getIcon());
         product.setColor(dto.getColor());
 
+        System.out.println(dto.getCategoryName());
+
         if (dto.getCategoryId() != null) {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(product::setCategory);
+        } else if (dto.getCategoryName() != null) {
+            System.out.println(dto.getCategoryName());
+            categoryRepository.findByName(dto.getCategoryName())
+                    .ifPresentOrElse(product::setCategory,
+                            () -> {
+                                Category newCat = new Category();
+                                newCat.setName(dto.getCategoryName());
+                                System.out.println(dto.getCategoryName());
+                                categoryRepository.save(newCat);
+                                product.setCategory(newCat);
+                            }
+                    );
         }
         loggingService.logInfo("Produkt erstellt: " + dto.getProductName(), null);
         return toDto(productConfigurationRepository.save(product));
@@ -122,6 +137,17 @@ public class ProductConfigurationService {
         if (dto.getCategoryId() != null) {
             categoryRepository.findById(dto.getCategoryId())
                     .ifPresent(existing::setCategory);
+        }else if (dto.getCategoryName() != null) {
+            categoryRepository.findByName(dto.getCategoryName())
+                    .ifPresentOrElse(existing::setCategory,
+                            () -> {
+                                Category newCat = new Category();
+                                newCat.setName(dto.getCategoryName());
+                                System.out.println(dto.getCategoryName());
+                                categoryRepository.save(newCat);
+                                existing.setCategory(newCat);
+                            }
+                    );
         }
 
         loggingService.logInfo("Produkt aktualisiert: " + id, null);

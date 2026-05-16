@@ -4,6 +4,7 @@ public class ProductConfigurationCreateDto {
 
     private String productName;
     private Long categoryId;
+    private String categoryName;
     private Integer targetWeight;
     private Integer tolerance;
     private String description;
@@ -11,6 +12,14 @@ public class ProductConfigurationCreateDto {
     private String color;
 
     public ProductConfigurationCreateDto() {
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public String getProductName() {
