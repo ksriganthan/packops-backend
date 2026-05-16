@@ -66,6 +66,7 @@ public class ConfigurationService {
         existing.setMaxUnits(dto.getMaxUnits());
         existing.setMaxIterations(dto.getMaxIterationsForReject());
         existing.setUpdatedAt(LocalDateTime.now());
+        existing.setLanguage(dto.getLanguage());
 
         loggingService.logInfo("Konfiguration aktualisiert", null);
         return toDto(configurationRepository.save(existing));

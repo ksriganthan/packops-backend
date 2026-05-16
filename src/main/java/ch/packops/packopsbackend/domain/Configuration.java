@@ -17,7 +17,7 @@ public class Configuration {
     private Integer maxIterations;
     private Integer maxUnits;
     private String language;
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public Long getId() {
         return id;

@@ -6,8 +6,19 @@ public class ConfigurationDto {
     private Integer tolerance;
     private Integer maxUnits;
     private Integer maxIterationsForReject;
+    private String language;
+
+
 
     public ConfigurationDto() {
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public Integer getTargetWeight() {
