@@ -1,10 +1,7 @@
 package ch.packops.packopsbackend.service;
 
+import ch.packops.packopsbackend.domain.*;
 import ch.packops.packopsbackend.domain.Process;
-import ch.packops.packopsbackend.domain.Configuration;
-import ch.packops.packopsbackend.domain.PackageUnit;
-import ch.packops.packopsbackend.domain.ProductConfiguration;
-import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.*;
 import ch.packops.packopsbackend.repository.ConfigurationRepository;
 import ch.packops.packopsbackend.repository.PackageRepository;
@@ -103,6 +100,28 @@ public class ProcessService {
         if (process.getConfiguration() != null) {
             dto.setConfigurationId(process.getConfiguration().getId());
         }
+
+        List<PackageUnit> packageUnits = packageRepository.findByProcessId(process.getId());
+
+        List<PackageUnitDto> packageDtos = packageUnits.stream()
+                .map(pkg -> toPackageDto(pkg, process))
+                .collect(Collectors.toList());
+        dto.setPackages(packageDtos);
+
+        return dto;
+    }
+
+    private PackageUnitDto toPackageDto(PackageUnit pkg, Process process) {
+        PackageUnitDto dto = new PackageUnitDto();
+        dto.setId(pkg.getId());
+        dto.setMeasuredWeight(pkg.getMeasuredWeight());
+        dto.setDeviation(pkg.getDeviation());
+
+        // Calculate if it is within tolerance
+        if (pkg.getDeviation() != null && process.getTolerance() != null) {
+            dto.setWithinTolerance(Math.abs(pkg.getDeviation()) <= process.getTolerance());
+        }
+
         return dto;
     }
 
@@ -228,6 +247,14 @@ public class ProcessService {
         dto.setMaxIterationsForReject(snapshot != null ? snapshot.getMaxIterationsForReject() : safeInt(process.getMaxIterationsForReject()));
         dto.setDeadlocksDetected(snapshot != null ? snapshot.getDeadlocksDetected() : safeInt(process.getDeadlocksDetected()));
         dto.setRecentMessage(snapshot != null ? snapshot.getRecentMessage() : "Keine aktive Simulation im Speicher");
+
+        // NEU: Snapshot-Daten für die Buckets übergeben
+        if (snapshot != null) {
+            dto.setBufferBuckets(snapshot.getBufferBuckets());
+            dto.setWeighingBuckets(snapshot.getWeighingBuckets());
+            dto.setMemoryBuckets(snapshot.getMemoryBuckets());
+            dto.setRecentSelectedBuckets(snapshot.getRecentSelectedBuckets());
+        }
 
         return dto;
     }

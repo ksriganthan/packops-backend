@@ -17,6 +17,15 @@ public class RuntimeSnapshot {
     private List<BucketSnapshot> bufferBuckets = new ArrayList<>();
     private List<BucketSnapshot> weighingBuckets = new ArrayList<>();
     private List<BucketSnapshot> memoryBuckets = new ArrayList<>();
+    private List<Integer> recentSelectedBuckets = new ArrayList<>();
+
+    public List<Integer> getRecentSelectedBuckets() {
+        return recentSelectedBuckets;
+    }
+
+    public void setRecentSelectedBuckets(List<Integer> recentSelectedBuckets) {
+        this.recentSelectedBuckets = recentSelectedBuckets;
+    }
 
     public RuntimeSnapshot() {
     }

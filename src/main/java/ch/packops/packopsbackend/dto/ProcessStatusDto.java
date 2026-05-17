@@ -1,5 +1,9 @@
 package ch.packops.packopsbackend.dto;
 
+import ch.packops.packopsbackend.simulation.RuntimeSnapshot;
+
+import java.util.List;
+
 public class ProcessStatusDto {
 
     private Long processId;
@@ -11,7 +15,45 @@ public class ProcessStatusDto {
     private Integer deadlocksDetected;
     private String recentMessage;
 
+    private List<RuntimeSnapshot.BucketSnapshot> bufferBuckets;
+    private List<RuntimeSnapshot.BucketSnapshot> weighingBuckets;
+    private List<RuntimeSnapshot.BucketSnapshot> memoryBuckets;
+
+    private List<Integer> recentSelectedBuckets;
+
     public ProcessStatusDto() {
+    }
+
+    public List<Integer> getRecentSelectedBuckets() {
+        return recentSelectedBuckets;
+    }
+
+    public void setRecentSelectedBuckets(List<Integer> recentSelectedBuckets) {
+        this.recentSelectedBuckets = recentSelectedBuckets;
+    }
+
+    public List<RuntimeSnapshot.BucketSnapshot> getBufferBuckets() {
+        return bufferBuckets;
+    }
+
+    public void setBufferBuckets(List<RuntimeSnapshot.BucketSnapshot> bufferBuckets) {
+        this.bufferBuckets = bufferBuckets;
+    }
+
+    public List<RuntimeSnapshot.BucketSnapshot> getWeighingBuckets() {
+        return weighingBuckets;
+    }
+
+    public void setWeighingBuckets(List<RuntimeSnapshot.BucketSnapshot> weighingBuckets) {
+        this.weighingBuckets = weighingBuckets;
+    }
+
+    public List<RuntimeSnapshot.BucketSnapshot> getMemoryBuckets() {
+        return memoryBuckets;
+    }
+
+    public void setMemoryBuckets(List<RuntimeSnapshot.BucketSnapshot> memoryBuckets) {
+        this.memoryBuckets = memoryBuckets;
     }
 
     public Long getProcessId() {

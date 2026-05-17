@@ -35,6 +35,8 @@ public class WeighingCore {
     private int recentPortionWeight;
     private String recentMessage = "Simulation gestartet";
 
+    private List<Integer> recentSelectedBuckets = new ArrayList<>();
+
     public WeighingCore(Process process,
                         InputSimulator inputSimulator,
                         CombinationAlgorithm combinationAlgorithm,
@@ -181,6 +183,8 @@ public class WeighingCore {
         process.setUnitsPacked(unitsPacked + 1);
         processRepository.save(process);
         recentMessage = "Package " + savedPackage.getId() + " erstellt (" + totalWeight + "g)";
+
+        recentSelectedBuckets = selectedBuckets.stream().map(MemoryBucket::getBucketNr).toList();
     }
 
     public void handleDeadlocks() {
@@ -224,6 +228,7 @@ public class WeighingCore {
         snapshot.setBufferBuckets(createBufferSnapshots());
         snapshot.setWeighingBuckets(createWeighingSnapshots());
         snapshot.setMemoryBuckets(createMemorySnapshots());
+        snapshot.setRecentSelectedBuckets(new ArrayList<>(recentSelectedBuckets));
         return snapshot;
     }
 
