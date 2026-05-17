@@ -8,4 +8,13 @@ public final class Role {
 
     private Role() {
     }
+
+    public static String matchRole(String input) {
+        return switch (input.toUpperCase()) {
+            case "ADMIN" -> Role.ADMIN;
+            case "OPERATOR" -> Role.OPERATOR;
+            case "VIEWER" -> Role.VIEWER;
+            default -> "Error";
+        };
+    }
 }

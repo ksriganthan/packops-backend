@@ -8,6 +8,8 @@ public class UserUpdateDto {
     private String password;
     private String role;
 
+    private String language;
+
     public UserUpdateDto() {
     }
 
@@ -49,5 +51,13 @@ public class UserUpdateDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

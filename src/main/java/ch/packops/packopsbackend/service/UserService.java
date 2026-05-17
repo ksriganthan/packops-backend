@@ -1,5 +1,6 @@
 package ch.packops.packopsbackend.service;
 
+import ch.packops.packopsbackend.domain.Role;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
@@ -54,8 +55,11 @@ public class UserService {
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPasswordHash(passwordService.hash(dto.getPassword()));
-        user.setRole(dto.getRole());
+        user.setRole(Role.matchRole(dto.getRole()));
         loggingService.logInfo("Benutzer erstellt: " + dto.getUsername(), null);
+        if (dto.getLanguage() != null) {
+            user.setLanguage(dto.getLanguage());
+        }
         return toDto(userRepository.save(user));
     }
 
@@ -89,7 +93,11 @@ public class UserService {
             existing.setPasswordHash(passwordService.hash(dto.getPassword()));
         }
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
-            existing.setRole(dto.getRole());
+            existing.setRole(Role.matchRole(dto.getRole()));
+        }
+
+        if (dto.getLanguage() != null && !dto.getLanguage().isEmpty()) {
+            existing.setLanguage(dto.getLanguage());
         }
         loggingService.logInfo("Benutzer aktualisiert: " + userId, null);
         return toDto(userRepository.save(existing));

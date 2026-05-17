@@ -6,8 +6,19 @@ public class UserCreateDto {
     private String email;
     private String password;
     private String role;
+    private String language;
+
 
     public UserCreateDto() {
+    }
+
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getUsername() {
