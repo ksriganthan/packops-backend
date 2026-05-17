@@ -1,10 +1,7 @@
-package ch.packops.packopsbackend.controller.UnitTests;
+package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.domain.Configuration;
 import ch.packops.packopsbackend.dto.ConfigurationDto;
 import ch.packops.packopsbackend.repository.ConfigurationRepository;
-import ch.packops.packopsbackend.service.ConfigurationService;
-import ch.packops.packopsbackend.service.LoggingService;
-import ch.packops.packopsbackend.service.ValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

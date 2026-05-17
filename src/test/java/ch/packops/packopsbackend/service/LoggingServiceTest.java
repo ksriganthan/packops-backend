@@ -1,10 +1,9 @@
-package ch.packops.packopsbackend.controller.UnitTests;
+package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.AuditLog;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.repository.AuditLogRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
-import ch.packops.packopsbackend.service.LoggingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

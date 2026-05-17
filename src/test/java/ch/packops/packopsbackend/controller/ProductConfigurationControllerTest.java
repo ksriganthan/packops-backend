@@ -1,4 +1,4 @@
-package ch.packops.packopsbackend.controller.IntegrationTests;
+package ch.packops.packopsbackend.controller;
 
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.repository.ProductConfigurationRepository;

@@ -1,7 +1,6 @@
-package ch.packops.packopsbackend.controller.UnitTests;
+package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.dto.ConfigurationDto;
 import ch.packops.packopsbackend.dto.UserCreateDto;
-import ch.packops.packopsbackend.service.ValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

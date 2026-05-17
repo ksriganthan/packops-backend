@@ -1,4 +1,4 @@
-package ch.packops.packopsbackend.controller.UnitTests;
+package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.UserCreateDto;
@@ -6,9 +6,6 @@ import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.repository.UserRepository;
 import ch.packops.packopsbackend.security.PasswordService;
-import ch.packops.packopsbackend.service.LoggingService;
-import ch.packops.packopsbackend.service.UserService;
-import ch.packops.packopsbackend.service.ValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

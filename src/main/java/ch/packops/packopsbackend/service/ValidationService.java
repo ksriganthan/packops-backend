@@ -77,6 +77,13 @@ public class ValidationService {
         if (dto.getPassword() == null || dto.getPassword().length() < 6) {
             throw new IllegalArgumentException("Password must be at least 6 characters");
         }
+        if (dto.getRole() == null || dto.getRole().isEmpty()) {
+            throw new IllegalArgumentException("Role cannot be empty");
+        }
+        String roleUpper = dto.getRole().toUpperCase();
+        if (!roleUpper.equals("ADMIN") && !roleUpper.equals("OPERATOR") && !roleUpper.equals("VIEWER")) {
+            throw new IllegalArgumentException("Role must be one of: admin, operator, viewer");
+        }
     }
 
     public void validateUserUpdate(UserUpdateDto dto) {
@@ -91,6 +98,35 @@ public class ValidationService {
         }
         if (dto.getOldPassword() != null && dto.getPassword() == null) {
             throw new IllegalArgumentException("New password cannot be empty if old password is provided");
+        }
+    }
+
+    public void validateProcess(ProcessStartDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Process cannot be null");
+        }
+        if (dto.getProductConfigurationId() == null) {
+            throw new IllegalArgumentException("ProductConfigurationId cannot be null");
+        }
+
+        // Validiere targetWeight (falls vorhanden)
+        if (dto.getTargetWeight() != null && (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500)) {
+            throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
+        }
+
+        // Validiere tolerance (falls vorhanden)
+        if (dto.getTolerance() != null && dto.getTolerance() < 0) {
+            throw new IllegalArgumentException("Tolerance must be positive");
+        }
+
+        // Validiere maxUnits (falls vorhanden)
+        if (dto.getMaxUnits() != null && dto.getMaxUnits() <= 0) {
+            throw new IllegalArgumentException("MaxUnits must be greater than 0");
+        }
+
+        // Validiere maxIterationsForReject (falls vorhanden)
+        if (dto.getMaxIterationsForReject() != null && dto.getMaxIterationsForReject() <= 0) {
+            throw new IllegalArgumentException("MaxIterationsForReject must be greater than 0");
         }
     }
 }
