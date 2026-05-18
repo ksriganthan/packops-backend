@@ -9,9 +9,7 @@ import ch.packops.packopsbackend.domain.Process;
 
 import java.util.List;
 
-/**
- * @author Kapischan
- */
+
 @Service
 public class StatisticsService {
     private final ProcessRepository processRepository;

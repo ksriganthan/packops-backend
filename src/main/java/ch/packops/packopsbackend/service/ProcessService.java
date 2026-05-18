@@ -32,6 +32,7 @@ public class ProcessService {
     private final PortionRepository portionRepository;
     private final UserRepository userRepository;
     private final LoggingService loggingService;
+    private final ValidationService validationService;
     private final Map<Long, SimulationManager> runningSimulations = new ConcurrentHashMap<>();
 
     public ProcessService(
@@ -41,7 +42,8 @@ public class ProcessService {
             PackageRepository packageRepository,
             PortionRepository portionRepository,
             UserRepository userRepository,
-            LoggingService loggingService) {
+            LoggingService loggingService,
+            ValidationService validationService) {
         this.processRepository = processRepository;
         this.productConfigurationRepository = productConfigurationRepository;
         this.configurationRepository = configurationRepository;
@@ -49,6 +51,7 @@ public class ProcessService {
         this.portionRepository = portionRepository;
         this.userRepository = userRepository;
         this.loggingService = loggingService;
+        this.validationService = validationService;
     }
 
     /**
@@ -174,6 +177,9 @@ public class ProcessService {
         if (dto == null) {
             dto = new ProcessStartDto();
         }
+
+        validationService.validateProcess(dto);
+
         final ProcessStartDto request = dto;
 
         boolean alreadyRunning = processRepository.findAll().stream()

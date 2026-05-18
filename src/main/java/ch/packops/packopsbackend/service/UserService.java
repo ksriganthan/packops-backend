@@ -58,6 +58,16 @@ public class UserService {
         // Validierung über ValidationService
         validationService.validateUser(dto);
 
+        // Prüfung auf duplizierten Benutzernamen
+        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists: " + dto.getUsername());
+        }
+
+        // Prüfung auf duplizierte E-Mail
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists: " + dto.getEmail());
+        }
+
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
