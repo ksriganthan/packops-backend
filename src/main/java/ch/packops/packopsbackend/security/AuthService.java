@@ -40,6 +40,10 @@ public class AuthService {
                     return new RuntimeException("Invalid username or password");
                 });
 
+        if (!user.isActive()) {
+            throw new RuntimeException("User is deactivated");
+        }
+
         boolean passwordMatches = passwordService.matches(password, user.getPasswordHash());
         if (!passwordMatches) {
             loggingService.logInfo("Login failed for user: " + username, null);

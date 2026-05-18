@@ -79,7 +79,7 @@ public class UserServiceTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> userService.deleteUser(999L)
+                () -> userService.deactivateOrActivateUser(999L)
         );
         assertTrue(ex.getMessage().contains("999") || ex.getMessage().contains("not found"));
     }

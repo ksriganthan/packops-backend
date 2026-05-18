@@ -71,9 +71,10 @@ public class UserController {
 
     // DELETE /api/users/{userId}
     // Nur Admin gemäss SecurityConfig
+    // Aufruf aktiviert / deaktiviert user
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<Void> activateOrDeactivateUser(@PathVariable Long userId) {
+        userService.deactivateOrActivateUser(userId);
         return ResponseEntity.noContent().build();
     }
 

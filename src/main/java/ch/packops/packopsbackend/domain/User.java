@@ -37,6 +37,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<UserSession> sessions = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     public User() {
     }
 
@@ -48,6 +51,14 @@ public class User {
         if (language == null || language.isBlank()) {
             language = "en";
         }
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Long getId() {

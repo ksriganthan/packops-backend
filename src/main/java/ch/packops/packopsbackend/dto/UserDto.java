@@ -11,8 +11,17 @@ public class UserDto {
     private String language;
     private LocalDateTime lastLogin;
     private LocalDateTime createdAt;
+    private boolean active;
 
     public UserDto() {
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Long getUserId() {

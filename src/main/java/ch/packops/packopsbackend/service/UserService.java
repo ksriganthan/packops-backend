@@ -6,6 +6,8 @@ import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.repository.UserRepository;
+import ch.packops.packopsbackend.repository.UserSessionRepository;
+import ch.packops.packopsbackend.security.TokenService;
 import org.springframework.stereotype.Service;
 import ch.packops.packopsbackend.security.PasswordService;
 
@@ -20,18 +22,22 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserSessionRepository userSessionRepository;
     private final ValidationService validationService;
     private final LoggingService loggingService;
     private final PasswordService passwordService;
+    private final TokenService tokenService;
 
-    public UserService(UserRepository userRepository,
+    public UserService(UserRepository userRepository, UserSessionRepository userSessionRepository,
                        ValidationService validationService,
                        LoggingService loggingService,
-                       PasswordService passwordService) {
+                       PasswordService passwordService, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.userSessionRepository = userSessionRepository;
         this.validationService = validationService;
         this.loggingService = loggingService;
         this.passwordService = passwordService;
+        this.tokenService = tokenService;
     }
 
     // Domain → UserDto
@@ -44,6 +50,7 @@ public class UserService {
         dto.setLanguage(user.getLanguage());
         dto.setLastLogin(user.getLastLogin());
         dto.setCreatedAt(user.getCreatedAt());
+        dto.setActive(user.isActive());
         return dto;
     }
 
@@ -103,11 +110,22 @@ public class UserService {
         return toDto(userRepository.save(existing));
     }
 
-    public void deleteUser(Long userId) {
+    public void deactivateOrActivateUser(Long userId) {
         User existing = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        userRepository.delete(existing);
-        loggingService.logInfo("Benutzer gelöscht: " + userId, null);
+        existing.setActive(!existing.isActive());
+        userRepository.save(existing);
+        if (!existing.isActive()) {
+            userSessionRepository.findAllByUserId(existing.getId()).forEach(
+                            (session) ->
+                                    tokenService.invalidateToken(session.getToken()
+                                    )
+                    );
+        }
+
+
+        String action = existing.isActive() ? "aktiviert" : "deaktiviert";
+        loggingService.logInfo("Benutzer und Session " + action + ": " + userId, null);
     }
 
     public UserDto changeLanguage(Long userId, String langCode) {
