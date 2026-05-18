@@ -106,7 +106,7 @@ public class ValidationService {
             throw new IllegalArgumentException("Process cannot be null");
         }
         if (dto.getProductConfigurationId() == null) {
-            throw new IllegalArgumentException("ProductConfigurationId cannot be null");
+            // throw new IllegalArgumentException("ProductConfigurationId cannot be null");
         }
 
         // Validiere targetWeight (falls vorhanden)
@@ -120,8 +120,8 @@ public class ValidationService {
         }
 
         // Validiere maxUnits (falls vorhanden)
-        if (dto.getMaxUnits() != null && dto.getMaxUnits() <= 0) {
-            throw new IllegalArgumentException("MaxUnits must be greater than 0");
+        if (dto.getMaxUnits() != null && dto.getMaxUnits() < 0) {
+            throw new IllegalArgumentException("MaxUnits cannot be negative");
         }
 
         // Validiere maxIterationsForReject (falls vorhanden)

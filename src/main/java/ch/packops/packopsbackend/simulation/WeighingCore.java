@@ -77,6 +77,7 @@ public class WeighingCore {
 
         if (process.getUnitsPacked() != null
                 && process.getMaxUnits() != null
+                && process.getMaxUnits() > 0
                 && process.getUnitsPacked() >= process.getMaxUnits()) {
             finishProcess();
         }
