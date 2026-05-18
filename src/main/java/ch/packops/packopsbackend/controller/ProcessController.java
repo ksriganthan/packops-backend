@@ -39,19 +39,11 @@ public class ProcessController {
         return ResponseEntity.ok(processService.getProcessesByUserId(userId));
     }
 
-    // GET /api/process/{id}
-    // Admin sieht alle, andere User nur eigene Prozesse
+    // Jeder authentifizierte User darf den Status sehen (Annahme 1 globale Maschine)
     @GetMapping("/{id}")
     public ResponseEntity<ProcessDetailDto> getProcess(
             @PathVariable Long id,
             @AuthenticationPrincipal Jwt jwt) {
-
-        Process domainProcess = processService.getProcessDomainById(id);
-
-        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         return ResponseEntity.ok(processService.getProcessById(id));
     }
 
@@ -82,19 +74,21 @@ public class ProcessController {
         return ResponseEntity.noContent().build();
     }
 
-    // GET /api/process/{id}/status
+    // Jeder authentifizierte User darf den Status sehen (Annahme 1 globale Maschine)
     @GetMapping("/{id}/status")
     public ResponseEntity<ProcessStatusDto> getStatus(
             @PathVariable Long id,
             @AuthenticationPrincipal Jwt jwt) {
-
-        Process domainProcess = processService.getProcessDomainById(id);
-
-        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         return ResponseEntity.ok(processService.getStatus(id));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ProcessDto> getActiveProcess() {
+        ProcessDto activeProcess = processService.getActiveProcess();
+        if (activeProcess != null) {
+            return ResponseEntity.ok(activeProcess);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     private boolean isAdmin(Jwt jwt) {

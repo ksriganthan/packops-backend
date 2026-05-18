@@ -132,6 +132,14 @@ public class ProcessService {
                 .collect(Collectors.toList());
     }
 
+    public ProcessDto getActiveProcess() {
+        return processRepository.findAll().stream()
+                .filter(process -> "RUNNING".equalsIgnoreCase(process.getStatus()))
+                .findFirst()
+                .map(this::toDto)
+                .orElse(null);
+    }
+
     public List<ProcessDto> getProcessesByUserId(Long userId) {
         loggingService.logInfo("Prozesse abgerufen für User: " + userId, null);
         return processRepository.findByUserId(userId)
