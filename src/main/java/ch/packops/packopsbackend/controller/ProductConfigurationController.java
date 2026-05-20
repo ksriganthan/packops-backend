@@ -71,10 +71,10 @@ public class ProductConfigurationController {
     }
 
     // DELETE /api/products/{id}
-    // Nur admin gemaess SecurityConfig
+    // Deaktiviert / Aktiviert die Produkte anstatt sie zu löschen
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProductConfiguration(@PathVariable Long id) {
-        productConfigurationService.deleteProductConfiguration(id);
+    public ResponseEntity<Void> activateOrDeactivateProduct(@PathVariable Long id) {
+        productConfigurationService.activateOrDeactivateProductConfiguration(id);
         return ResponseEntity.noContent().build();
     }
 

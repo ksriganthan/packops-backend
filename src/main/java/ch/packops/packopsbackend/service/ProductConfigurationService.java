@@ -149,10 +149,12 @@ public class ProductConfigurationService {
         return toDto(productConfigurationRepository.save(existing));
     }
 
-    public void deleteProductConfiguration(Long id) {
+    public void activateOrDeactivateProductConfiguration(Long id) {
         ProductConfiguration existing = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        productConfigurationRepository.delete(existing);
-        loggingService.logInfo("Produkt gelöscht: " + id, null);
+        existing.setActive(!existing.getActive());
+        productConfigurationRepository.save(existing);
+        String text = existing.getActive() ? "aktiviert": "deaktiviert";
+        loggingService.logInfo(String.format("Produkt %s mit ID %s: %s", existing.getName(), id, text), null);
     }
 }
