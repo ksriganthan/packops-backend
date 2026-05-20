@@ -169,10 +169,6 @@ public class ProcessService {
         return toDto(startProcess(dto, userId));
     }
 
-    public Process startProcess(ProcessStartDto dto) {
-        return startProcess(dto, null);
-    }
-
     public Process startProcess(ProcessStartDto dto, Long userId) {
         if (dto == null) {
             dto = new ProcessStartDto();
