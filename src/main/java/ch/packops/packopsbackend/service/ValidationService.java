@@ -1,6 +1,8 @@
 package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.dto.*;
+import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,6 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 
 public class ValidationService {
+
+    @Autowired
+    private ProductConfigurationRepository productConfigurationRepository;
+
+
+    public ValidationService() {
+
+    }
 
     public void validateConfiguration(ConfigurationDto dto) {
         if (dto == null) {
@@ -105,6 +115,9 @@ public class ValidationService {
         if (dto == null) {
             throw new IllegalArgumentException("Process cannot be null");
         }
+
+        // wenn kein Produkt ausgewählt wird, so wird momentan null im Backend gespeichert, eventuell noch so anpassen?
+        // Im Zusammenhang wenn jemand einen Prozess ohne ein Produkt startet (kann verschiedene gründe haben)
         if (dto.getProductConfigurationId() == null) {
             // throw new IllegalArgumentException("ProductConfigurationId cannot be null");
         }
@@ -127,6 +140,12 @@ public class ValidationService {
         // Validiere maxIterationsForReject (falls vorhanden)
         if (dto.getMaxIterationsForReject() != null && dto.getMaxIterationsForReject() <= 0) {
             throw new IllegalArgumentException("MaxIterationsForReject must be greater than 0");
+        }
+
+        if (dto.getProductConfigurationId() != null && productConfigurationRepository.findById(dto.getProductConfigurationId()).isEmpty()) {
+            throw new IllegalArgumentException(String.format("Product with ID %s does not exist", dto.getProductConfigurationId()));
+        } else if (dto.getProductConfigurationId() != null && !productConfigurationRepository.findById(dto.getProductConfigurationId()).get().getActive()) {
+            throw new IllegalArgumentException((String.format("Product with ID %s is deactivated", dto.getProductConfigurationId())));
         }
     }
 }
