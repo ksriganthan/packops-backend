@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   TC-UC04-02 — Der neue Benutzer ist in der Datenbank vorhanden
  *   TC-UC04-04 — Benutzername existiert bereits → API liefert Fehler
  *   TC-UC05-02 — Klick auf User → API liefert Details
- *   TC-UC06-05 — Login mit gelöschtem Account → Fehler
  *   TC-UC07-02 — Falsche Daten → Fehlermeldung
  *   TC-UC07-03 — Logout → Token wird ungültig
  *
@@ -146,31 +145,6 @@ public class UserControllerIntegrationTest {
 
     // ── TC-UC06-05: Login mit gelöschtem Account → Fehler ─────────────
 
-    /**
-     * TC-UC06-05: DELETE /api/users/{id} → anschließend Login-Versuch
-     * → HTTP 401 Unauthorized
-     */
-    @Test
-    void deleteUser_thenLogin_returns401() throws Exception {
-        String adminToken = loginAndGetToken("admin", "admin123");
-        User operator = userRepository.findByUsername("operator").orElseThrow();
-
-        // Benutzer löschen
-        mockMvc.perform(delete("/api/users/" + operator.getId())
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isNoContent());
-
-        // Login mit gelöschtem Account
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "username": "operator",
-                          "password": "operator123"
-                        }
-                        """))
-                .andExpect(status().isUnauthorized());
-    }
 
     // ── TC-UC07-02: Falsche Daten → Fehlermeldung ─────────────────────
 

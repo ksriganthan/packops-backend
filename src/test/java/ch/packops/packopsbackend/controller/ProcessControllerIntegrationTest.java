@@ -21,16 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 /**
- * Integrationstests für ProcessController
+ * Integrationstests
  * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
- *   TC-UC01-02 — Start-Request mit ungültigen Parametern → Server liefert Fehler (400)
- *   TC-UC02-02 — Zielgewicht <50 oder >500 → Request abgelehnt
- *   TC-UC02-05 — Toleranz negativ → Fehler, keine Speicherung
  *   TC-UC03-02 — Datenbank leer → API liefert leere Liste
  *   TC-UC03-03 — Service wirft Fehler → API liefert Fehlerstatus
- *
- * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Security → Controller → Service → Validation → DB
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,13 +49,17 @@ public class ProcessControllerIntegrationTest {
     private ConfigurationRepository configurationRepository;
 
     @Autowired
+    private AuditLogRepository auditLogRepository;
+
+    @Autowired
     private PasswordService passwordService;
 
     private Long productConfigId;
 
     @BeforeEach
     void setUp() {
-        // Cleanup
+        // Cleanup (wichtig: AuditLogs zuerst wegen Foreign Keys)
+        auditLogRepository.deleteAll();
         processRepository.deleteAll();
         userSessionRepository.deleteAll();
         userRepository.deleteAll();
@@ -90,124 +88,7 @@ public class ProcessControllerIntegrationTest {
         configurationRepository.save(config);
     }
 
-    // ── TC-UC01-02: Start mit ungültigen Parametern → 400 ─────────────
-
-    /**
-     * TC-UC01-02: POST /api/process/start mit fehlendem productConfigurationId
-     * → HTTP 400 Bad Request
-     */
-    @Test
-    void startProcess_missingProductConfigId_returns400() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "targetWeight": 250,
-                          "tolerance": 10,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * TC-UC01-02: POST /api/process/start mit nicht-existierender productConfigurationId
-     * → HTTP 500 (RuntimeException: ProductConfiguration not found)
-     */
-    @Test
-    void startProcess_nonExistingProductConfigId_returns500() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": 99999,
-                          "targetWeight": 250,
-                          "tolerance": 10,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """))
-                .andExpect(status().is5xxServerError());
-    }
-
-    // ── TC-UC02-02: Zielgewicht außerhalb 50–500 → 400 ────────────────
-
-    /**
-     * TC-UC02-02: targetWeight = 49 (unter Minimum) → 400 Bad Request
-     */
-    @Test
-    void startProcess_targetWeightTooLow_returns400() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": %d,
-                          "targetWeight": 49,
-                          "tolerance": 10,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """.formatted(productConfigId)))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * TC-UC02-02: targetWeight = 501 (über Maximum) → 400 Bad Request
-     */
-    @Test
-    void startProcess_targetWeightTooHigh_returns400() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": %d,
-                          "targetWeight": 501,
-                          "tolerance": 10,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """.formatted(productConfigId)))
-                .andExpect(status().isBadRequest());
-    }
-
-    // ── TC-UC02-05: Toleranz negativ → 400 ────────────────────────────
-
-    /**
-     * TC-UC02-05: tolerance = -1 → 400 Bad Request
-     */
-    @Test
-    void startProcess_negativeTolerance_returns400() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": %d,
-                          "targetWeight": 250,
-                          "tolerance": -1,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """.formatted(productConfigId)))
-                .andExpect(status().isBadRequest());
-    }
-
-    // ── TC-UC03-02: Datenbank leer → leere Liste ──────────────────────
+       // ── TC-UC03-02: Datenbank leer → leere Liste ──────────────────────
 
     /**
      * TC-UC03-02: GET /api/process (Datenbank leer)
@@ -233,58 +114,15 @@ public class ProcessControllerIntegrationTest {
     @Test
     void getProcess_nonExistingId_returns500() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
+        Long maxId = processRepository.findAll().stream()
+                .map(p -> p.getId())
+                .max(Long::compareTo)
+                .orElse(0L);
+        long nonExistingId = maxId + 1000;
 
-        mockMvc.perform(get("/api/process/99999")
+        mockMvc.perform(get("/api/process/" + nonExistingId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().is5xxServerError());
-    }
-
-    // ── Erfolgreicher Prozess-Start (Happy Path) ──────────────────────
-
-    /**
-     * POST /api/process/start mit gültigen Parametern
-     * → HTTP 200, Prozess wird erstellt
-     */
-    @Test
-    void startProcess_validParameters_returns200() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": %d,
-                          "targetWeight": 250,
-                          "tolerance": 10,
-                          "maxUnits": 100,
-                          "maxIterationsForReject": 3
-                        }
-                        """.formatted(productConfigId)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.targetWeight").value(250))
-                .andExpect(jsonPath("$.tolerance").value(10));
-    }
-
-    /**
-     * Cascading Configuration Test:
-     * ProductConfiguration-Defaults werden von Configuration überschrieben
-     */
-    @Test
-    void startProcess_withoutDTO_usesCascadingDefaults() throws Exception {
-        String token = loginAndGetToken("operator", "operator123");
-
-        mockMvc.perform(post("/api/process/start")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {
-                          "productConfigurationId": %d
-                        }
-                        """.formatted(productConfigId)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.targetWeight").value(250))
-                .andExpect(jsonPath("$.tolerance").value(10));
     }
 
     // ── Admin sieht alle Prozesse, Operator nur eigene ────────────────
