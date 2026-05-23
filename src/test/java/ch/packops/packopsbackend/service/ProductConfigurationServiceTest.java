@@ -19,17 +19,19 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
 /**
- * Unit Tests für ProductConfigurationService
- *
+ * @author Kapischan Sriganthan
+ */
+
+/**
+ * Unit Tests für ProcessService
  * Deckt zentrale Service-Logik ab:
  * - Produkt erstellen
  * - Partial Update
  * - Aktivieren / Deaktivieren
  * - Delegation an ValidationService
  * - Logging nach Änderungen
- *
- * @author Kapischan Sriganthan
  */
 @ExtendWith(MockitoExtension.class) // JUnit soll Mockito in diesem Test aktivieren
 public class ProductConfigurationServiceTest {
@@ -223,7 +225,7 @@ public class ProductConfigurationServiceTest {
         dto.setTolerance(5);
         dto.setCategoryName("Früchte");
 
-        when(categoryRepository.findByName("Früchte"))
+        when(categoryRepository.findByNameIgnoreCase("Früchte"))
                 .thenReturn(Optional.empty());
 
         when(categoryRepository.save(any(Category.class)))

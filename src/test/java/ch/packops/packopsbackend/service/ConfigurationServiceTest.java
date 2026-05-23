@@ -52,7 +52,14 @@ public class ConfigurationServiceTest {
         dto.setMaxUnits(50);
         dto.setMaxIterationsForReject(5);
 
-        when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
+        // Mock: Existierende Configuration (wird vom refactored Code erwartet)
+        Configuration existing = new Configuration();
+        existing.setTargetWeight(200);
+        existing.setTolerance(5);
+        existing.setMaxUnits(100);
+        existing.setMaxIterations(3);
+        when(configurationRepository.findAll()).thenReturn(List.of(existing));
+
         when(configurationRepository.save(any(Configuration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -76,7 +83,14 @@ public class ConfigurationServiceTest {
         dto.setMaxUnits(100);
         dto.setMaxIterationsForReject(3);
 
-        when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
+        // Mock: Existierende Configuration
+        Configuration existing = new Configuration();
+        existing.setTargetWeight(200);
+        existing.setTolerance(10);
+        existing.setMaxUnits(50);
+        existing.setMaxIterations(2);
+        when(configurationRepository.findAll()).thenReturn(List.of(existing));
+
         when(configurationRepository.save(any(Configuration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -127,7 +141,10 @@ public class ConfigurationServiceTest {
         dto.setMaxUnits(100);
         dto.setMaxIterationsForReject(3);
 
-        when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
+        // Mock: Existierende Configuration
+        Configuration existing = new Configuration();
+        existing.setTargetWeight(200);
+        when(configurationRepository.findAll()).thenReturn(List.of(existing));
         when(configurationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         configurationService.updateConfiguration(dto);
@@ -145,7 +162,10 @@ public class ConfigurationServiceTest {
         dto.setMaxUnits(100);
         dto.setMaxIterationsForReject(3);
 
-        when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
+        // Mock: Existierende Configuration
+        Configuration existing = new Configuration();
+        existing.setTargetWeight(200);
+        when(configurationRepository.findAll()).thenReturn(List.of(existing));
         when(configurationRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         configurationService.updateConfiguration(dto);

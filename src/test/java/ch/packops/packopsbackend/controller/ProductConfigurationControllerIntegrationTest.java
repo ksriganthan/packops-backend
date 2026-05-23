@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   TC-UC08-06 — Viewer darf kein Produkt erstellen → 403 Forbidden
  *
  * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Security → Controller → Service → Validation → DB
+ * → Vollständiges Zusammenspiel: Controller → Service → Validation → DB
  */
 @SpringBootTest
 @AutoConfigureMockMvc

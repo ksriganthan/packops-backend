@@ -3,7 +3,12 @@ package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.ProcessDto;
+import ch.packops.packopsbackend.repository.ConfigurationRepository;
+import ch.packops.packopsbackend.repository.PackageRepository;
+import ch.packops.packopsbackend.repository.PortionRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
+import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
+import ch.packops.packopsbackend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +26,7 @@ import static org.mockito.Mockito.*;
  * @author Kapischan Sriganthan
  */
 
+
 /**
  * Unit Tests für ProcessService
  *   TC-UC03-02 — Leere DB → leere Liste
@@ -32,6 +38,27 @@ public class ProcessServiceTest {
 
     @Mock
     private ProcessRepository processRepository;
+
+    @Mock
+    private ProductConfigurationRepository productConfigurationRepository;
+
+    @Mock
+    private ConfigurationRepository configurationRepository;
+
+    @Mock
+    private PackageRepository packageRepository;
+
+    @Mock
+    private PortionRepository portionRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private LoggingService loggingService;
+
+    @Mock
+    private ValidationService validationService;
 
     @InjectMocks
     private ProcessService processService;
@@ -91,7 +118,7 @@ public class ProcessServiceTest {
         List<ProcessDto> result = processService.getAllProcesses();
 
         assertEquals(1, result.size());
-        ProcessDto dto = result.get(0);
+        ProcessDto dto = result.getFirst();
         assertEquals(1L, dto.getProcessId());
         assertEquals("RUNNING", dto.getStatus());
         assertEquals(start, dto.getStartTimestamp());
@@ -118,7 +145,7 @@ public class ProcessServiceTest {
 
         List<ProcessDto> result = processService.getAllProcesses();
 
-        assertNull(result.get(0).getUserId());
+        assertNull(result.getFirst().getUserId());
     }
 
     /**
@@ -147,7 +174,5 @@ public class ProcessServiceTest {
     // ══════════════════════════════════════════════════════════════════════════════════════
     // TODO: TESTS FÜR DAVID T.'s METHODEN
     // ══════════════════════════════════════════════════════════════════════════════════════
-
-
 
 }

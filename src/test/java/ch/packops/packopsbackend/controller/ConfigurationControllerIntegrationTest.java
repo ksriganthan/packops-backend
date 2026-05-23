@@ -62,6 +62,15 @@ public class ConfigurationControllerIntegrationTest {
         operator.setRole("operator");
         operator.setLanguage("de");
         userRepository.save(operator);
+
+        // Default-Configuration erstellen (wird von updateConfiguration() erwartet)
+        ch.packops.packopsbackend.domain.Configuration config = new ch.packops.packopsbackend.domain.Configuration();
+        config.setTargetWeight(200);
+        config.setTolerance(10);
+        config.setMaxUnits(50);
+        config.setMaxIterations(3);
+        config.setLanguage("de");
+        configurationRepository.save(config);
     }
 
     // ── TC-UC02-01: Gültige Config → 200 OK ───────────────────────

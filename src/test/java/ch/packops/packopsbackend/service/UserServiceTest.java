@@ -5,7 +5,9 @@ import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.repository.UserRepository;
+import ch.packops.packopsbackend.repository.UserSessionRepository;
 import ch.packops.packopsbackend.security.PasswordService;
+import ch.packops.packopsbackend.security.TokenService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,14 +23,13 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Kapischan Sriganthan
+
+ * Unit Tests für UserService
+ * TC-UC05-04 — Benutzer-Suchmethode liefert alle Benutzer
+ * TC-UC06-02 — UserID existiert nicht → Exception
+ * TC-UC06-03 — Passwort wird gehasht (nicht Klartext gespeichert)
  */
 
-/**
- * Unit Tests für UserService
- *   TC-UC05-04 — Benutzer-Suchmethode liefert alle Benutzer
- *   TC-UC06-02 — UserID existiert nicht → Exception
- *   TC-UC06-03 — Passwort wird gehasht (nicht Klartext gespeichert)
- */
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
@@ -36,7 +37,19 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private UserSessionRepository userSessionRepository;
+
+    @Mock
+    private ValidationService validationService;
+
+    @Mock
+    private LoggingService loggingService;
+
+    @Mock
     private PasswordService passwordService;
+
+    @Mock
+    private TokenService tokenService;
 
     @InjectMocks
     private UserService userService;
