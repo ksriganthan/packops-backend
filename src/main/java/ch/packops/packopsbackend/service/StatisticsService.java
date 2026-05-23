@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author David M.
+ */
+
 @Service
 public class StatisticsService {
     private final ProcessRepository processRepository;
@@ -24,9 +28,9 @@ public class StatisticsService {
     private final LoggingService loggingService;
 
     public StatisticsService(ProcessRepository processRepository,
-                             PackageRepository packageRepository,
-                             ProductConfigurationRepository productRepository,
-                             LoggingService loggingService) {
+            PackageRepository packageRepository,
+            ProductConfigurationRepository productRepository,
+            LoggingService loggingService) {
         this.processRepository = processRepository;
         this.packageRepository = packageRepository;
         this.productRepository = productRepository;
@@ -40,21 +44,18 @@ public class StatisticsService {
 
         List<PackageUnit> packages = packageRepository.findByProcessId(processId);
         List<Process> processList = Collections.singletonList(process);
-        
+
         StatisticsDto dto = calculateStats(processList, packages);
         dto.setAvailableProcesses(getAvailableProcesses());
         dto.setAvailableProducts(getAvailableProducts());
         return dto;
     }
 
-    /**
-     * @author David M.
-     */
     public StatisticsDto getProductStatistics(Long productId) {
         loggingService.logInfo("Statistiken abgerufen für Produkt: " + productId, null);
         List<Process> processes;
         List<PackageUnit> packages;
-        
+
         if (productId == 0L) {
             processes = processRepository.findByProductConfigurationIsNull();
             packages = packageRepository.findByProcessProductConfigurationIsNull();
@@ -82,7 +83,9 @@ public class StatisticsService {
 
     private List<ProcessOverviewDto> getAvailableProcesses() {
         return processRepository.findAll().stream()
-                .map(p -> new ProcessOverviewDto(p.getId(), "Prozess #" + p.getId() + " (" + (p.getTargetWeight() != null ? p.getTargetWeight() : 0) + "g)"))
+                .map(p -> new ProcessOverviewDto(p.getId(),
+                        "Prozess #" + p.getId() + " (" + (p.getTargetWeight() != null ? p.getTargetWeight() : 0)
+                                + "g)"))
                 .collect(Collectors.toList());
     }
 
@@ -141,7 +144,8 @@ public class StatisticsService {
         dto.setAverageWeight(Math.round(avgWeight * 10.0) / 10.0);
 
         long goodCount = packages.stream()
-                .filter(p -> p.getDeviation() != null && p.getProcess() != null && p.getProcess().getTolerance() != null)
+                .filter(p -> p.getDeviation() != null && p.getProcess() != null
+                        && p.getProcess().getTolerance() != null)
                 .filter(p -> Math.abs(p.getDeviation()) <= p.getProcess().getTolerance())
                 .count();
         dto.setGoodPackages((int) goodCount);
@@ -161,22 +165,26 @@ public class StatisticsService {
                 .mapToLong(p -> {
                     LocalDateTime end = p.getEndTimestamp() != null ? p.getEndTimestamp() : LocalDateTime.now();
                     long sec = Duration.between(p.getStartTimestamp(), end).getSeconds();
-                    return sec > 0 ? sec : 1; 
+                    return sec > 0 ? sec : 1;
                 })
                 .sum();
-        
-        if (totalSeconds <= 0) totalSeconds = 1;
+
+        if (totalSeconds <= 0)
+            totalSeconds = 1;
         dto.setPackagesPerMinute((int) (totalPackages * 60 / totalSeconds));
     }
 
     private void calculateWeightDistribution(List<PackageUnit> packages, StatisticsDto dto) {
         int MAX_BINS = 15;
-        int minDev = packages.stream().filter(p -> p.getDeviation() != null).mapToInt(PackageUnit::getDeviation).min().orElse(0);
-        int maxDev = packages.stream().filter(p -> p.getDeviation() != null).mapToInt(PackageUnit::getDeviation).max().orElse(0);
-        
+        int minDev = packages.stream().filter(p -> p.getDeviation() != null).mapToInt(PackageUnit::getDeviation).min()
+                .orElse(0);
+        int maxDev = packages.stream().filter(p -> p.getDeviation() != null).mapToInt(PackageUnit::getDeviation).max()
+                .orElse(0);
+
         int range = maxDev - minDev;
-        if (range == 0) range = 1;
-        
+        if (range == 0)
+            range = 1;
+
         double binSize = range <= MAX_BINS ? 1.0 : (double) range / MAX_BINS;
         int actualBins = range <= MAX_BINS ? range + 1 : MAX_BINS;
 
@@ -190,14 +198,16 @@ public class StatisticsService {
             if (p.getDeviation() != null) {
                 int dev = p.getDeviation();
                 int binIndex = (int) Math.floor((dev - minDev) / binSize);
-                if (binIndex >= actualBins) binIndex = actualBins - 1;
-                if (binIndex < 0) binIndex = 0;
-                
+                if (binIndex >= actualBins)
+                    binIndex = actualBins - 1;
+                if (binIndex < 0)
+                    binIndex = 0;
+
                 int binCenter = range <= MAX_BINS ? dev : minDev + (int) Math.round((binIndex + 0.5) * binSize);
                 distMap.merge(binCenter, 1, Integer::sum);
             }
         }
-        
+
         List<DistributionItemDto> distList = new ArrayList<>();
         for (Map.Entry<Integer, Integer> entry : distMap.entrySet()) {
             boolean isTgt = range <= MAX_BINS ? entry.getKey() == 0 : Math.abs(entry.getKey()) <= (binSize / 2);
