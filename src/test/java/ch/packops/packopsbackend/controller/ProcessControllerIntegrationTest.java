@@ -51,18 +51,34 @@ public class ProcessControllerIntegrationTest {
     private AuditLogRepository auditLogRepository;
 
     @Autowired
+    private PackageRepository packageRepository;
+
+    @Autowired
+    private PortionRepository portionRepository;
+
+    @Autowired
     private PasswordService passwordService;
 
     private Long productConfigId;
 
     @BeforeEach
     void setUp() {
-        // Cleanup aller relevanten Tabellen, damit jeder Test mit einem sauberen Zustand startet
+        // Cleanup aller relevanten Tabellen in korrekter Reihenfolge (abhängige Tabellen zuerst!)
+        // 1. portions → referenziert packages
+        portionRepository.deleteAll();
+        // 2. packages → referenziert processes
+        packageRepository.deleteAll();
+        // 3. audit_log → könnte processes referenzieren
         auditLogRepository.deleteAll();
+        // 4. processes → wird von packages und audit_log referenziert
         processRepository.deleteAll();
+        // 5. user_sessions → referenziert users
         userSessionRepository.deleteAll();
+        // 6. users
         userRepository.deleteAll();
+        // 7. product_configurations
         productConfigurationRepository.deleteAll();
+        // 8. configuration
         configurationRepository.deleteAll();
 
         // Users erstellen
@@ -84,6 +100,7 @@ public class ProcessControllerIntegrationTest {
         config.setTolerance(10);
         config.setMaxUnits(100);
         config.setMaxIterations(3);
+        config.setLanguage("de");
         configurationRepository.save(config);
     }
 
@@ -114,8 +131,8 @@ public class ProcessControllerIntegrationTest {
     void getProcess_nonExistingId_returns500() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
         Long maxId = processRepository.findAll().stream()
-                .map(p -> p.getId())
-                .max(Long::compareTo)
+                .map(process -> process.getId())
+                .max(Long::compare)
                 .orElse(0L);
         long nonExistingId = maxId + 1000;
 
