@@ -11,8 +11,19 @@ public class AuthResponseDto {
     private String email;
     private LocalDateTime lastLogin;
     private LocalDateTime createdAt;
+    private String language;
+
+
 
     public AuthResponseDto() {
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getStatus() {

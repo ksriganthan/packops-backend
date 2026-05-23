@@ -65,6 +65,7 @@ public class AuthService {
         response.setEmail(user.getEmail());
         response.setLastLogin(user.getLastLogin());
         response.setCreatedAt(user.getCreatedAt());
+        response.setLanguage(user.getLanguage());
 
         return response;
     }
