@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/statistics")
+/**
+ * @author David M.
+ */
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
@@ -16,11 +19,19 @@ public class StatisticsController {
         this.statisticsService = statisticsService;
     }
 
-    // GET /api/statistics
-    // Alle eingeloggten User gemaess SecurityConfig
     @GetMapping
     public ResponseEntity<StatisticsDto> getOverviewStatistics() {
         return ResponseEntity.ok(statisticsService.getOverviewStatistics());
+    }
+
+    @GetMapping("/{processId}")
+    public ResponseEntity<StatisticsDto> getProcessStatistics(@PathVariable Long processId) {
+        return ResponseEntity.ok(statisticsService.getProcessStatistics(processId));
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<StatisticsDto> getProductStatistics(@PathVariable Long productId) {
+        return ResponseEntity.ok(statisticsService.getProductStatistics(productId));
     }
 
     @ExceptionHandler(RuntimeException.class)

@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface ProcessRepository extends JpaRepository<Process, Long> {
     List<Process> findByUserId(Long userId);
+    List<Process> findByProductConfigurationId(Long productConfigurationId);
+    List<Process> findByProductConfigurationIsNull();
 }

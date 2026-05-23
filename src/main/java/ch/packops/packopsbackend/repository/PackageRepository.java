@@ -8,4 +8,6 @@ import java.util.List;
 @Repository
 public interface PackageRepository extends JpaRepository<PackageUnit, Long> {
     List<PackageUnit> findByProcessId(Long processId);
+    List<PackageUnit> findByProcessProductConfigurationId(Long productConfigurationId);
+    List<PackageUnit> findByProcessProductConfigurationIsNull();
 }
