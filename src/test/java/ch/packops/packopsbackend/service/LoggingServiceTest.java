@@ -22,7 +22,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit Tests für LoggingService
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   A10 (Basis) — System schreibt serverseitigen Log (Level = INFO)
  *   TC-UC10-04  — Logeintrag bei Rückführvorgang (Level = WARN)
  */

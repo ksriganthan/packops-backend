@@ -23,12 +23,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integrationstests für ConfigurationController
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC02-01 — Gültige Konfiguration → 200 OK, Werte gespeichert
  *   TC-UC02-02 — targetWeight ausserhalb 50–500 → 400 Bad Request
  *
  * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Security → Controller → Service → Validation → DB
+ * → Vollständiges Zusammenspiel: Controller → Service → Validation → DB
  */
 @SpringBootTest
 @AutoConfigureMockMvc

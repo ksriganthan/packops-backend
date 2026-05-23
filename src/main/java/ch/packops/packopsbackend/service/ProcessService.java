@@ -55,7 +55,7 @@ public class ProcessService {
     }
 
     /**
-     * @author Kapischan
+     * @author Kapischan Sriganthan
      */
 
     // Domain → ProcessDto
@@ -120,7 +120,7 @@ public class ProcessService {
         dto.setMeasuredWeight(pkg.getMeasuredWeight());
         dto.setDeviation(pkg.getDeviation());
 
-        // Calculate if it is within tolerance
+        // Prüfung, ob es innerhalb der Toleranz liegt (nur wenn beide Werte vorhanden sind)
         if (pkg.getDeviation() != null && process.getTolerance() != null) {
             dto.setWithinTolerance(Math.abs(pkg.getDeviation()) <= process.getTolerance());
         }

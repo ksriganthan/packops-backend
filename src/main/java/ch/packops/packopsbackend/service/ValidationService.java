@@ -21,6 +21,7 @@ public class ValidationService {
 
     }
 
+    // Validation ConfigurationDto
     public void validateConfiguration(ConfigurationDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Configuration cannot be null");
@@ -39,6 +40,7 @@ public class ValidationService {
         }
     }
 
+    // Validation ProductConfigurationCreateDto
     public void validateProduct(ProductConfigurationCreateDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Product cannot be null");
@@ -54,11 +56,11 @@ public class ValidationService {
         }
     }
 
+    // Validation ProductConfigurationUpdateDto
     public void validateProductUpdate(ProductConfigurationUpdateDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Product cannot be null");
         }
-        
         // Partial Update: Nur vorhandene (nicht-null) Felder validieren
         if (dto.getProductName() != null && dto.getProductName().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be empty");
@@ -71,6 +73,7 @@ public class ValidationService {
         }
     }
 
+    // Validation UserCreateDto
     public void validateUser(UserCreateDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("User cannot be null");
@@ -96,10 +99,12 @@ public class ValidationService {
         }
     }
 
+    // Validation UserUpdateDto
     public void validateUserUpdate(UserUpdateDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
+        // Partial Update: Nur vorhandene (nicht-null) Felder validieren
         if (dto.getEmail() != null && !dto.getEmail().isEmpty() && !dto.getEmail().contains("@")) {
             throw new IllegalArgumentException("Email is not valid");
         }
@@ -111,11 +116,13 @@ public class ValidationService {
         }
     }
 
+    // Validation ProcessStartDto
     public void validateProcess(ProcessStartDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Process cannot be null");
         }
 
+        // Todo: Noch mit der Gruppe prüfen
         // wenn kein Produkt ausgewählt wird, so wird momentan null im Backend gespeichert, eventuell noch so anpassen?
         // Im Zusammenhang wenn jemand einen Prozess ohne ein Produkt startet (kann verschiedene gründe haben)
         if (dto.getProductConfigurationId() == null) {
@@ -126,22 +133,18 @@ public class ValidationService {
         if (dto.getTargetWeight() != null && (dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500)) {
             throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
         }
-
         // Validiere tolerance (falls vorhanden)
         if (dto.getTolerance() != null && dto.getTolerance() < 0) {
             throw new IllegalArgumentException("Tolerance must be positive");
         }
-
         // Validiere maxUnits (falls vorhanden)
         if (dto.getMaxUnits() != null && dto.getMaxUnits() < 0) {
             throw new IllegalArgumentException("MaxUnits cannot be negative");
         }
-
         // Validiere maxIterationsForReject (falls vorhanden)
         if (dto.getMaxIterationsForReject() != null && dto.getMaxIterationsForReject() <= 0) {
             throw new IllegalArgumentException("MaxIterationsForReject must be greater than 0");
         }
-
         if (dto.getProductConfigurationId() != null && productConfigurationRepository.findById(dto.getProductConfigurationId()).isEmpty()) {
             throw new IllegalArgumentException(String.format("Product with ID %s does not exist", dto.getProductConfigurationId()));
         } else if (dto.getProductConfigurationId() != null && !productConfigurationRepository.findById(dto.getProductConfigurationId()).get().getActive()) {

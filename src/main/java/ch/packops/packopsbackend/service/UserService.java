@@ -74,6 +74,7 @@ public class UserService {
         user.setPasswordHash(passwordService.hash(dto.getPassword()));
         user.setRole(Role.matchRole(dto.getRole()));
         loggingService.logInfo("Benutzer erstellt: " + dto.getUsername(), null);
+
         if (dto.getLanguage() != null) {
             user.setLanguage(dto.getLanguage());
         }
@@ -125,6 +126,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         existing.setActive(!existing.isActive());
         userRepository.save(existing);
+        // Tokens aller Sessions des Benutzers invalidieren, wenn der Benutzer deaktiviert wird
         if (!existing.isActive()) {
             userSessionRepository.findAllByUserId(existing.getId()).forEach(
                             (session) ->
@@ -132,8 +134,6 @@ public class UserService {
                                     )
                     );
         }
-
-
         String action = existing.isActive() ? "aktiviert" : "deaktiviert";
         loggingService.logInfo("Benutzer und Session " + action + ": " + userId, null);
     }

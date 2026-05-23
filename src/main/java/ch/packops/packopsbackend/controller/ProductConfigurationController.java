@@ -4,7 +4,6 @@ import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationUpdateDto;
 import ch.packops.packopsbackend.service.ProductConfigurationService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,7 @@ public class ProductConfigurationController {
     }
 
     // GET /api/products?category=...
-    // Alle eingeloggten User duerfen lesen
+    // Alle eingeloggten User dürfen lesen
     @GetMapping
     public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurations(
             @RequestParam(required = false) String category) {
@@ -37,7 +36,7 @@ public class ProductConfigurationController {
     }
 
     // GET /api/products/{id}
-    // Alle eingeloggten User duerfen lesen
+    // Alle eingeloggten User dürfen lesen
     @GetMapping("/{id}")
     public ResponseEntity<ProductConfigurationDto> getProductConfiguration(@PathVariable Long id) {
         return ResponseEntity.ok(
@@ -46,10 +45,10 @@ public class ProductConfigurationController {
     }
 
     // POST /api/products
-    // Nur admin gemaess SecurityConfig
+    // Nur Admin gemäss SecurityConfig
     @PostMapping
     public ResponseEntity<ProductConfigurationDto> createProductConfiguration(
-            @Valid @RequestBody ProductConfigurationCreateDto dto) {
+            @RequestBody ProductConfigurationCreateDto dto) {
 
         ProductConfigurationDto created =
                 productConfigurationService.createProductConfiguration(dto);
@@ -58,11 +57,11 @@ public class ProductConfigurationController {
     }
 
     // PUT /api/products/{id}
-    // Nur admin gemaess SecurityConfig
+    // Nur Admin gemäss SecurityConfig
     @PutMapping("/{id}")
     public ResponseEntity<ProductConfigurationDto> updateProductConfiguration(
             @PathVariable Long id,
-            @Valid @RequestBody ProductConfigurationUpdateDto dto) {
+            @RequestBody ProductConfigurationUpdateDto dto) {
 
         ProductConfigurationDto updated =
                 productConfigurationService.updateProductConfiguration(id, dto);
@@ -72,10 +71,11 @@ public class ProductConfigurationController {
 
     // DELETE /api/products/{id}
     // Deaktiviert / Aktiviert die Produkte anstatt sie zu löschen
+    // Nur Admin gemäss SecurityConfig
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> activateOrDeactivateProduct(@PathVariable Long id) {
         productConfigurationService.activateOrDeactivateProductConfiguration(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); // Body ist leer + 204 no content
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

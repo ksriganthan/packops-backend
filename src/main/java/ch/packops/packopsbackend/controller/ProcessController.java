@@ -6,7 +6,6 @@ import ch.packops.packopsbackend.dto.ProcessDto;
 import ch.packops.packopsbackend.dto.ProcessStartDto;
 import ch.packops.packopsbackend.dto.ProcessStatusDto;
 import ch.packops.packopsbackend.service.ProcessService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -32,37 +31,49 @@ public class ProcessController {
     }
 
     // GET /api/process
-    // Admin sieht alle Prozesse, andere User nur eigene Prozesse
+    // Admin sieht alle Prozesse, andere User nur eigene Prozesse.
+    // Spring Security liest den Bearer Token aus dem Authorization-Header
+    // und injiziert den validierten JWT über @AuthenticationPrincipal.
     @GetMapping
     public ResponseEntity<List<ProcessDto>> getProcesses(@AuthenticationPrincipal Jwt jwt) {
+        // Annahme: Rolle ist im JWT als "role" Claim enthalten, UserId als "userId" Claim
+        // Aus dem JWT kann man die Rolle und die User-Id herauslesen
         if (isAdmin(jwt)) {
             return ResponseEntity.ok(processService.getAllProcesses());
         }
-
         Long userId = getCurrentUserId(jwt);
         return ResponseEntity.ok(processService.getProcessesByUserId(userId));
     }
 
-    // Jeder authentifizierte User darf den Status sehen (Annahme 1 globale Maschine)
+    // Admins können alle Prozesse sehen, andere User nur eigene Prozesse
+    // Hier ist die Prüfung notwendig, ob der User überhaupt berechtigt ist, den Prozess zu sehen (entweder Admin oder eigener Prozess)
     @GetMapping("/{id}")
     public ResponseEntity<ProcessDetailDto> getProcess(
             @PathVariable Long id,
             @AuthenticationPrincipal Jwt jwt) {
+    // Hier brauchen wir das richtige Process-Objekt, um zu prüfen, ob der User berechtigt ist
+        Process domainProcess = processService.getProcessDomainById(id);
+
+        // Zugriff erlaubt, wenn der Benutzer Admin ist oder der Prozess dem Benutzer gehört.
+        // Falls beides nicht zutrifft, wird 403 Forbidden zurückgegeben.
+        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(processService.getProcessById(id));
     }
 
     // POST /api/process/start
-    // Nur admin/operator gemaess SecurityConfig
+    // Nur Admin/Operator gemäss SecurityConfig
     @PostMapping("/start")
     public ResponseEntity<ProcessDto> startProcess(
-            @Valid @RequestBody ProcessStartDto dto,
+            @RequestBody ProcessStartDto dto,
             @AuthenticationPrincipal Jwt jwt) {
 
         return ResponseEntity.ok(processService.startProcessDto(dto, getCurrentUserId(jwt)));
     }
 
     // POST /api/process/{id}/stop
-    // Nur admin/operator gemaess SecurityConfig
+    // Nur Admin/Operator gemäss SecurityConfig
     @PostMapping("/{id}/stop")
     public ResponseEntity<Void> stopProcess(
             @PathVariable Long id,
@@ -78,11 +89,10 @@ public class ProcessController {
         return ResponseEntity.noContent().build();
     }
 
-    // Jeder authentifizierte User darf den Status sehen (Annahme 1 globale Maschine)
+    // Jeder authentifizierte User darf den Status sehen
     @GetMapping("/{id}/status")
     public ResponseEntity<ProcessStatusDto> getStatus(
-            @PathVariable Long id,
-            @AuthenticationPrincipal Jwt jwt) {
+            @PathVariable Long id) {
         return ResponseEntity.ok(processService.getStatus(id));
     }
 

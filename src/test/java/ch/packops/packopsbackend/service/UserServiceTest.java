@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit Tests für UserService
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC05-04 — Benutzer-Suchmethode liefert alle Benutzer
  *   TC-UC06-02 — UserID existiert nicht → Exception
  *   TC-UC06-03 — Passwort wird gehasht (nicht Klartext gespeichert)
@@ -33,15 +32,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private ValidationService validationService;
-
-    @Mock
-    private LoggingService loggingService;
 
     @Mock
     private PasswordService passwordService;

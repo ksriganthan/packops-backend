@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integrationstests für ProductConfigurationController
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC08-02 — Produkt mit gültigem Gewicht erstellen → 200 OK
  *   TC-UC08-03 — Produkt targetWeight ausserhalb 50–500 → 400 Bad Request
  *   TC-UC08-04 — Produkt negative Toleranz → 400 Bad Request
@@ -35,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ProductConfigurationControllerTest {
+public class ProductConfigurationControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,7 +74,7 @@ public class ProductConfigurationControllerTest {
         String token = loginAndGetToken("admin", "admin123");
 
         mockMvc.perform(post("/api/products")
-                        .header("Authorization", "Bearer " + token)
+                        .header("Authorization", "Bearer " + token) // Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {
@@ -198,6 +197,7 @@ public class ProductConfigurationControllerTest {
                         """))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
+        // Z.B. Antwort: {"id":1,"name":"Zu löschendes Produkt","defaultTargetWeight":200,"defaultTolerance":3,"description":null}
 
         // ID aus der Antwort extrahieren
         int idStart = createResponse.indexOf("\"id\":") + "\"id\":".length();

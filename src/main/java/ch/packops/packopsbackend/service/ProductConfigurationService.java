@@ -60,14 +60,6 @@ public class ProductConfigurationService {
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
-    public List<ProductConfigurationDto> getProductConfigurationsByCategory(String categoryName) {
-        if (categoryName != null && !categoryName.isEmpty()) {
-            return productConfigurationRepository.findByCategoryName(categoryName)
-                    .stream().map(this::toDto).collect(Collectors.toList());
-        }
-        return productConfigurationRepository.findAll()
-                .stream().map(this::toDto).collect(Collectors.toList());
-    }
     public ProductConfigurationDto getProductConfiguration(Long id) {
         ProductConfiguration product = productConfigurationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
@@ -85,21 +77,11 @@ public class ProductConfigurationService {
         product.setDefaultTolerance(dto.getTolerance());
         product.setIcon(dto.getIcon());
         product.setColor(dto.getColor());
+        product.setPackageUnits(0); // Default-Wert, wird beim ersten Prozess aktualisiert
 
-        if (dto.getCategoryId() != null) {
-            categoryRepository.findById(dto.getCategoryId())
-                    .ifPresent(product::setCategory);
-        } else if (dto.getCategoryName() != null) {
-            categoryRepository.findByName(dto.getCategoryName())
-                    .ifPresentOrElse(product::setCategory,
-                            () -> {
-                                Category newCat = new Category();
-                                newCat.setName(dto.getCategoryName());
-                                categoryRepository.save(newCat);
-                                product.setCategory(newCat);
-                            }
-                    );
-        }
+        // Category-Handling über Helper-Methode
+        handleCategoryAssignment(product, dto.getCategoryId(), dto.getCategoryName());
+
         loggingService.logInfo("Produkt erstellt: " + dto.getProductName(), null);
         return toDto(productConfigurationRepository.save(product));
     }
@@ -130,19 +112,10 @@ public class ProductConfigurationService {
         if (dto.getColor() != null) {
             existing.setColor(dto.getColor());
         }
-        if (dto.getCategoryId() != null) {
-            categoryRepository.findById(dto.getCategoryId())
-                    .ifPresent(existing::setCategory);
-        }else if (dto.getCategoryName() != null) {
-            categoryRepository.findByName(dto.getCategoryName())
-                    .ifPresentOrElse(existing::setCategory,
-                            () -> {
-                                Category newCat = new Category();
-                                newCat.setName(dto.getCategoryName());
-                                categoryRepository.save(newCat);
-                                existing.setCategory(newCat);
-                            }
-                    );
+
+        // Category-Handling über Helper-Methode (nur wenn CategoryId oder CategoryName angegeben)
+        if (dto.getCategoryId() != null || dto.getCategoryName() != null) {
+            handleCategoryAssignment(existing, dto.getCategoryId(), dto.getCategoryName());
         }
 
         loggingService.logInfo("Produkt aktualisiert: " + id, null);
@@ -156,5 +129,34 @@ public class ProductConfigurationService {
         productConfigurationRepository.save(existing);
         String text = existing.getActive() ? "aktiviert": "deaktiviert";
         loggingService.logInfo(String.format("Produkt %s mit ID %s: %s", existing.getName(), id, text), null);
+    }
+
+    /**
+     * Helper-Methode: Weist einem Produkt eine Category zu
+     * - Wenn categoryId angegeben: Suche nach ID
+     * - Wenn categoryName angegeben: Case-insensitive Suche nach Name, erstelle neue falls nicht vorhanden
+     * - Auto-Create ermöglicht flexible Category-Verwaltung (Groß-/Kleinschreibung wird ignoriert)
+     */
+    private void handleCategoryAssignment(ProductConfiguration product, Long categoryId, String categoryName) {
+        if (categoryId != null) {
+            // Priorität 1: categoryId
+            categoryRepository.findById(categoryId)
+                    .ifPresent(product::setCategory);
+        } else if (categoryName != null) {
+            // Priorität 2: categoryName (case-insensitive)
+            // Damit es aufgrund Tippfehler nicht zu gefälschten Duplikaten kommt, wird die Suche case-insensitive durchgeführt
+            categoryRepository.findByNameIgnoreCase(categoryName)
+                    .ifPresentOrElse(
+                            product::setCategory,
+                            () -> {
+                                // Auto-Create neue Category
+                                Category newCat = new Category();
+                                newCat.setName(categoryName);
+                                Category savedCat = categoryRepository.save(newCat);
+                                product.setCategory(savedCat);
+                                loggingService.logInfo("Neue Category erstellt: " + categoryName, null);
+                            }
+                    );
+        }
     }
 }

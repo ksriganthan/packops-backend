@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("admin")
                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("admin")
 
+                        // Jeder eingeloggte Benutzer darf diesen Endpunkt grundsätzlich aufrufen.
                 .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
 

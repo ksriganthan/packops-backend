@@ -34,6 +34,7 @@ public class ConfigurationService {
         dto.setTolerance(config.getTolerance());
         dto.setMaxUnits(config.getMaxUnits());
         dto.setMaxIterationsForReject(config.getMaxIterations());
+        dto.setLanguage(config.getLanguage());
         return dto;
     }
 
@@ -44,29 +45,43 @@ public class ConfigurationService {
         config.setTolerance(dto.getTolerance());
         config.setMaxUnits(dto.getMaxUnits());
         config.setMaxIterations(dto.getMaxIterationsForReject());
+        config.setLanguage(dto.getLanguage());
         return config;
     }
 
     public ConfigurationDto getConfiguration() {
-        List<Configuration> configs = configurationRepository.findAll();
-        if (configs.isEmpty()) {
-            throw new RuntimeException("No configuration found");
-        }
-        return toDto(configs.get(0)); // Es gibt nur eine globale Konfiguration
+        Configuration config = configurationRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No configuration found"));
+        return toDto(config);
     }
 
     public ConfigurationDto updateConfiguration(ConfigurationDto dto) {
-        // Validierung über ValidationService
         validationService.validateConfiguration(dto);
 
-        List<Configuration> configs = configurationRepository.findAll();
-        Configuration existing = configs.isEmpty() ? new Configuration() : configs.get(0);
-        existing.setTargetWeight(dto.getTargetWeight());
-        existing.setTolerance(dto.getTolerance());
-        existing.setMaxUnits(dto.getMaxUnits());
-        existing.setMaxIterations(dto.getMaxIterationsForReject());
+        Configuration existing = configurationRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No configuration found"));
+
+        // Nur non-null Felder aktualisieren -> Partial Update
+        if (dto.getTargetWeight() != null) {
+            existing.setTargetWeight(dto.getTargetWeight());
+        }
+        if (dto.getTolerance() != null) {
+            existing.setTolerance(dto.getTolerance());
+        }
+        if (dto.getMaxUnits() != null) {
+            existing.setMaxUnits(dto.getMaxUnits());
+        }
+        if (dto.getMaxIterationsForReject() != null) {
+            existing.setMaxIterations(dto.getMaxIterationsForReject());
+        }
+        // Todo: Was ist mit Language?
+        if (dto.getLanguage() != null) {
+            existing.setLanguage(dto.getLanguage());
+        }
+
         existing.setUpdatedAt(LocalDateTime.now());
-        existing.setLanguage(dto.getLanguage());
 
         loggingService.logInfo("Konfiguration aktualisiert", null);
         return toDto(configurationRepository.save(existing));

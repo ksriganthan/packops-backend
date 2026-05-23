@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integrationstests
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC03-02 — Datenbank leer → API liefert leere Liste
  *   TC-UC03-03 — Service wirft Fehler → API liefert Fehlerstatus
  */
@@ -58,7 +57,7 @@ public class ProcessControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Cleanup (wichtig: AuditLogs zuerst wegen Foreign Keys)
+        // Cleanup aller relevanten Tabellen, damit jeder Test mit einem sauberen Zustand startet
         auditLogRepository.deleteAll();
         processRepository.deleteAll();
         userSessionRepository.deleteAll();
@@ -79,7 +78,7 @@ public class ProcessControllerIntegrationTest {
         productConfig.setActive(true);
         productConfigId = productConfigurationRepository.save(productConfig).getId();
 
-        // Globale Configuration erstellen (für Cascading-Tests)
+        // Globale Configuration erstellen
         Configuration config = new Configuration();
         config.setTargetWeight(250);
         config.setTolerance(10);
@@ -147,7 +146,7 @@ public class ProcessControllerIntegrationTest {
                           "maxUnits": 100,
                           "maxIterationsForReject": 3
                         }
-                        """.formatted(productConfigId)))
+                        """.formatted(productConfigId))) // ProductConfigID - siehe ganz oben -> wird dynamisch erzeugt
                 .andExpect(status().isOk());
 
         // Admin sieht alle Prozesse
@@ -183,7 +182,7 @@ public class ProcessControllerIntegrationTest {
                           "username": "%s",
                           "password": "%s"
                         }
-                        """.formatted(username, password)))
+                        """.formatted(username, password))) // Die Werte von Args werden eingesetzt
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 

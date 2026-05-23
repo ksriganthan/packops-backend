@@ -4,7 +4,6 @@ import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -32,7 +31,7 @@ public class UserController {
     // POST /api/users
     // Nur Admin gemäss SecurityConfig
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto dto) {
+    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto dto) {
         UserDto created = userService.createUser(dto);
         return ResponseEntity.ok(created);
     }
@@ -63,7 +62,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UserUpdateDto dto,
+            @RequestBody UserUpdateDto dto,
             @AuthenticationPrincipal Jwt jwt) {
 
         if (!isAdmin(jwt) && !isOwnUser(jwt, userId)) {

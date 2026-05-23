@@ -10,7 +10,7 @@ import ch.packops.packopsbackend.dto.*;
 import java.time.LocalDateTime;
 
 /**
- * @author Kapischan
+ * @author Kapischan Sriganthan
  */
 
 @Service
@@ -25,7 +25,7 @@ public class LoggingService {
         this.processRepository = processRepository;
     }
 
-    // Normaler Info-Log
+    // Normaler Info-Log (Level: INFO) -> Allgemeiner Log (processId kann null sein)
     public void logInfo(String message, Long processId) {
         AuditLog log = new AuditLog();
         log.setLevel("INFO");
@@ -38,7 +38,7 @@ public class LoggingService {
         auditLogRepository.save(log);
     }
 
-    // Prozess-Event loggen
+    // Prozess-Event loggen (Level: INFO) -> Prozessbezogener Log (processId kann nicht null sein)
     public void logProcessEvent(Long processId, String message) {
         Process process = processRepository.findById(processId)
                 .orElseThrow(() -> new RuntimeException("Process not found with id: " + processId));
@@ -50,7 +50,7 @@ public class LoggingService {
         auditLogRepository.save(log);
     }
 
-    // Deadlock loggen
+    // Deadlock loggen (Level: WARN) -> Spezieller Log für Deadlocks (processId und bucketNr können nicht null sein)
     public void logDeadlock(Long processId, Integer bucketNr) {
         Process process = processRepository.findById(processId)
                 .orElseThrow(() -> new RuntimeException("Process not found with id: " + processId));

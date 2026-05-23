@@ -3,7 +3,6 @@ package ch.packops.packopsbackend.controller;
 import ch.packops.packopsbackend.dto.AuthResponseDto;
 import ch.packops.packopsbackend.dto.LoginRequestDto;
 import ch.packops.packopsbackend.security.AuthService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto dto) {
         AuthResponseDto response = authService.login(dto);
         return ResponseEntity.ok(response);
     }

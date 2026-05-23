@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit Tests für ConfigurationService
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC08-08 — DB speichert richtigen Zustand nach updateConfiguration
  */
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +66,7 @@ public class ConfigurationServiceTest {
 
     /**
      * TC-UC08-08: Das Configuration-Entity, das an save() übergeben wird,
-     * enthält exakt die DTO-Werte (ArgumentCaptor-Prüfung der DB-Entity).
+     * enthält exakt die DTO-Werte.
      */
     @Test
     void updateConfiguration_passesCorrectEntityToRepository() {
@@ -83,6 +82,7 @@ public class ConfigurationServiceTest {
 
         configurationService.updateConfiguration(dto);
 
+        // Um das Objekt, welches an Respository für die Speicherung übergeben wird, aufzufangen und zu prüfen
         ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
         verify(configurationRepository).save(captor.capture());
 
@@ -103,8 +103,8 @@ public class ConfigurationServiceTest {
         existing.setMaxIterations(1);
 
         when(configurationRepository.findAll()).thenReturn(List.of(existing));
-        when(configurationRepository.save(any(Configuration.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(configurationRepository.save(any(Configuration.class))) // Egal welches Configuration-Object
+                .thenAnswer(invocation -> invocation.getArgument(0)); // Erste Argument des save-Aufrufs
 
         ConfigurationDto dto = new ConfigurationDto();
         dto.setTargetWeight(400);
@@ -132,6 +132,7 @@ public class ConfigurationServiceTest {
 
         configurationService.updateConfiguration(dto);
 
+        // Prüfen, ob die validateConfiguration-Methode mit genau diesem DTO genau einmal aufgerufen wurde
         verify(validationService, times(1)).validateConfiguration(dto);
     }
 
@@ -149,6 +150,7 @@ public class ConfigurationServiceTest {
 
         configurationService.updateConfiguration(dto);
 
+        // ProcessID sollte null sein
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 

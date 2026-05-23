@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Integrationstests für UserController
- * Phase-1-Referenz: Abschnitt 1.6.6, Seiten 34–39
  *   TC-UC04-02 — Der neue Benutzer ist in der Datenbank vorhanden
  *   TC-UC04-04 — Benutzername existiert bereits → API liefert Fehler
  *   TC-UC05-02 — Klick auf User → API liefert Details
@@ -29,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   TC-UC07-03 — Logout → Token wird ungültig
  *
  * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Security → Controller → Service → DB
+ * → Vollständiges Zusammenspiel: Controller → Service → DB
  */
 @SpringBootTest
 @AutoConfigureMockMvc
