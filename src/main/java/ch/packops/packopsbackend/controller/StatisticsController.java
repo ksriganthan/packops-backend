@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/statistics")
 /**
  * @author David M.
  */
+@RestController
+@RequestMapping("/api/statistics")
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
@@ -20,18 +20,18 @@ public class StatisticsController {
     }
 
     @GetMapping
-    public ResponseEntity<StatisticsDto> getOverviewStatistics() {
-        return ResponseEntity.ok(statisticsService.getOverviewStatistics());
+    public ResponseEntity<StatisticsDto> getOverviewStatistics(@RequestParam(defaultValue = "de") String language) {
+        return ResponseEntity.ok(statisticsService.getOverviewStatistics(language));
     }
 
     @GetMapping("/{processId}")
-    public ResponseEntity<StatisticsDto> getProcessStatistics(@PathVariable Long processId) {
-        return ResponseEntity.ok(statisticsService.getProcessStatistics(processId));
+    public ResponseEntity<StatisticsDto> getProcessStatistics(@PathVariable Long processId, @RequestParam(defaultValue = "de") String language) {
+        return ResponseEntity.ok(statisticsService.getProcessStatistics(processId, language));
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<StatisticsDto> getProductStatistics(@PathVariable Long productId) {
-        return ResponseEntity.ok(statisticsService.getProductStatistics(productId));
+    public ResponseEntity<StatisticsDto> getProductStatistics(@PathVariable Long productId, @RequestParam(defaultValue = "de") String language) {
+        return ResponseEntity.ok(statisticsService.getProductStatistics(productId, language));
     }
 
     @ExceptionHandler(RuntimeException.class)

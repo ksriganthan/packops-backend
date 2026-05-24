@@ -1,5 +1,9 @@
 package ch.packops.packopsbackend.dto;
 
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
+
+import java.util.ArrayList;
+
 public class ProductConfigurationDto {
     private Long id;
     private String name;
@@ -10,7 +14,16 @@ public class ProductConfigurationDto {
     private String icon;
     private String color;
     private Boolean active;
-    private String categoryName;
+    private Long categoryId;
+    private ArrayList<ProductConfigurationTranslation> translations;
+
+    public ArrayList<ProductConfigurationTranslation> getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(ArrayList<ProductConfigurationTranslation> translations) {
+        this.translations = translations;
+    }
 
     public Long getId() {
         return id;
@@ -84,11 +97,11 @@ public class ProductConfigurationDto {
         this.active = active;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

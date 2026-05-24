@@ -1,5 +1,9 @@
 package ch.packops.packopsbackend.dto;
 
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
+
+import java.util.ArrayList;
+
 public class ProductConfigurationUpdateDto {
 
     private String productName;
@@ -11,7 +15,21 @@ public class ProductConfigurationUpdateDto {
     private String icon;
     private String color;
 
+    /**
+     * @author Teodor Glisic
+     */
+
+    private ArrayList<ProductConfigurationTranslation> translations;
+
     public ProductConfigurationUpdateDto() {
+    }
+
+    public ArrayList<ProductConfigurationTranslation> getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(ArrayList<ProductConfigurationTranslation> translations) {
+        this.translations = translations;
     }
 
     public String getCategoryName() {

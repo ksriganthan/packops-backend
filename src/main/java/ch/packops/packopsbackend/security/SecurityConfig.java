@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/ping").permitAll()
+                        .requestMatchers("/api/category").authenticated()
 
                 .requestMatchers(HttpMethod.GET, "/api/users").hasRole("admin")
                 .requestMatchers(HttpMethod.POST, "/api/users").hasRole("admin")
