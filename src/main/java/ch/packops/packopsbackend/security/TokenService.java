@@ -15,6 +15,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+/**
+ * @author Mladen Radovanovic
+ */
 @Service
 public class TokenService {
 

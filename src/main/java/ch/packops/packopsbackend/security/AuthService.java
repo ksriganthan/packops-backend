@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author Mladen Radovanovic
+ */
 @Service
 public class AuthService {
 
