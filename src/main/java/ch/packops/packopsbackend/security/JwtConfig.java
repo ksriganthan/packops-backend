@@ -17,6 +17,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+/**
+ * @author Mladen Radovanovic
+ */
 @Configuration
 public class JwtConfig {
 

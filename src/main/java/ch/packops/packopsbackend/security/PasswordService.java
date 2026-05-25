@@ -3,6 +3,9 @@ package ch.packops.packopsbackend.security;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Mladen Radovanovic
+ */
 @Service
 public class PasswordService {
 

@@ -5,6 +5,9 @@ import ch.packops.packopsbackend.domain.Role;
 import ch.packops.packopsbackend.domain.User;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Mladen Radovanovic
+ */
 @Service
 public class AuthorizationService {
 
