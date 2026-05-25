@@ -1,6 +1,7 @@
 package ch.packops.packopsbackend.controller;
 
 import ch.packops.packopsbackend.domain.Configuration;
+import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.repository.*;
@@ -18,9 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * @author Kapischan Sriganthan
- */
-
-/**
  * Integrationstests
  *   TC-UC03-02 — Datenbank leer → API liefert leere Liste
  *   TC-UC03-03 — Service wirft Fehler → API liefert Fehlerstatus
@@ -87,7 +85,6 @@ public class ProcessControllerIntegrationTest {
 
         // ProductConfiguration erstellen
         ProductConfiguration productConfig = new ProductConfiguration();
-        productConfig.setName("Kaffeebohnen");
         productConfig.setDefaultTargetWeight(250);
         productConfig.setDefaultTolerance(10);
         productConfig.setPackageUnits(100);
@@ -131,7 +128,7 @@ public class ProcessControllerIntegrationTest {
     void getProcess_nonExistingId_returns500() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
         Long maxId = processRepository.findAll().stream()
-                .map(process -> process.getId())
+                .map(Process::getId)
                 .max(Long::compare)
                 .orElse(0L);
         long nonExistingId = maxId + 1000;

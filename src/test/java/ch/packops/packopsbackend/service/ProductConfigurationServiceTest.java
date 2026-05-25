@@ -2,11 +2,13 @@ package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.Category;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
 import ch.packops.packopsbackend.dto.ProductConfigurationCreateDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationDto;
 import ch.packops.packopsbackend.dto.ProductConfigurationUpdateDto;
 import ch.packops.packopsbackend.repository.CategoryRepository;
 import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
+import ch.packops.packopsbackend.repository.ProductConfigurationTranslationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,10 +25,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Kapischan Sriganthan
- */
-
-/**
- * Unit Tests für ProcessService
+ * Unit Tests für ProductConfigurationService
  * Deckt zentrale Service-Logik ab:
  * - Produkt erstellen
  * - Partial Update
@@ -48,6 +48,9 @@ public class ProductConfigurationServiceTest {
     @Mock
     private LoggingService loggingService;
 
+    @Mock
+    private ProductConfigurationTranslationRepository translationRepository;
+
     @InjectMocks
     private ProductConfigurationService productConfigurationService;
 
@@ -58,25 +61,34 @@ public class ProductConfigurationServiceTest {
     @Test
     void createProductConfiguration_savesCorrectValues() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();
-        dto.setProductName("Kaffeebohnen");
-        dto.setDescription("Premium Arabica");
         dto.setTargetWeight(250);
         dto.setTolerance(5);
         dto.setIcon("coffee");
         dto.setColor("brown");
 
+        ArrayList<ProductConfigurationTranslation> translations = new ArrayList<>();
+        ProductConfigurationTranslation translation = new ProductConfigurationTranslation();
+        translation.setLanguageCode("de");
+        translation.setName("Kaffeebohnen");
+        translation.setDescription("Premium Arabica");
+        translations.add(translation);
+        dto.setTranslations(translations);
+
         when(productConfigurationRepository.save(any(ProductConfiguration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(translationRepository.findAllByProductConfiguration(any()))
+                .thenReturn(translations);
 
         ProductConfigurationDto result =
                 productConfigurationService.createProductConfiguration(dto);
 
-        assertEquals("Kaffeebohnen", result.getName());
-        assertEquals("Premium Arabica", result.getDescription());
         assertEquals(250, result.getDefaultTargetWeight());
         assertEquals(5, result.getDefaultTolerance());
         assertEquals("coffee", result.getIcon());
         assertEquals("brown", result.getColor());
+        assertNotNull(result.getTranslations());
+        assertEquals(1, result.getTranslations().size());
 
         verify(validationService, times(1)).validateProduct(dto);
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
@@ -89,8 +101,6 @@ public class ProductConfigurationServiceTest {
     @Test
     void createProductConfiguration_passesCorrectEntityToRepository() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();
-        dto.setProductName("Äpfel");
-        dto.setDescription("Rote Äpfel");
         dto.setTargetWeight(300);
         dto.setTolerance(10);
         dto.setIcon("apple");
@@ -98,6 +108,9 @@ public class ProductConfigurationServiceTest {
 
         when(productConfigurationRepository.save(any(ProductConfiguration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(translationRepository.findAllByProductConfiguration(any()))
+                .thenReturn(new ArrayList<>());
 
         productConfigurationService.createProductConfiguration(dto);
 
@@ -108,8 +121,6 @@ public class ProductConfigurationServiceTest {
 
         ProductConfiguration saved = captor.getValue();
 
-        assertEquals("Äpfel", saved.getName());
-        assertEquals("Rote Äpfel", saved.getDescription());
         assertEquals(300, saved.getDefaultTargetWeight());
         assertEquals(10, saved.getDefaultTolerance());
         assertEquals("apple", saved.getIcon());
@@ -124,8 +135,6 @@ public class ProductConfigurationServiceTest {
     @Test
     void updateProductConfiguration_partialUpdate_updatesOnlyProvidedFields() {
         ProductConfiguration existing = new ProductConfiguration();
-        existing.setName("Kaffeebohnen");
-        existing.setDescription("Alte Beschreibung");
         existing.setDefaultTargetWeight(250);
         existing.setDefaultTolerance(5);
         existing.setIcon("old-icon");
@@ -134,7 +143,6 @@ public class ProductConfigurationServiceTest {
 
         ProductConfigurationUpdateDto dto = new ProductConfigurationUpdateDto();
         dto.setTolerance(10);
-        dto.setDescription("Neue Beschreibung");
 
         when(productConfigurationRepository.findById(1L))
                 .thenReturn(Optional.of(existing));
@@ -142,11 +150,12 @@ public class ProductConfigurationServiceTest {
         when(productConfigurationRepository.save(any(ProductConfiguration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        when(translationRepository.findAllByProductConfiguration(any()))
+                .thenReturn(new ArrayList<>());
+
         ProductConfigurationDto result =
                 productConfigurationService.updateProductConfiguration(1L, dto);
 
-        assertEquals("Kaffeebohnen", result.getName());
-        assertEquals("Neue Beschreibung", result.getDescription());
         assertEquals(250, result.getDefaultTargetWeight());
         assertEquals(10, result.getDefaultTolerance());
         assertEquals("old-icon", result.getIcon());
@@ -162,7 +171,7 @@ public class ProductConfigurationServiceTest {
     @Test
     void updateProductConfiguration_productNotFound_throwsException() {
         ProductConfigurationUpdateDto dto = new ProductConfigurationUpdateDto();
-        dto.setProductName("Neuer Name");
+        dto.setIcon("new-icon");
 
         when(productConfigurationRepository.findById(999L))
                 .thenReturn(Optional.empty());
@@ -179,7 +188,6 @@ public class ProductConfigurationServiceTest {
     @Test
     void activateOrDeactivateProductConfiguration_activeProduct_becomesInactive() {
         ProductConfiguration existing = new ProductConfiguration();
-        existing.setName("Kaffeebohnen");
         existing.setActive(true);
 
         when(productConfigurationRepository.findById(1L))
@@ -199,7 +207,6 @@ public class ProductConfigurationServiceTest {
     @Test
     void activateOrDeactivateProductConfiguration_inactiveProduct_becomesActive() {
         ProductConfiguration existing = new ProductConfiguration();
-        existing.setName("Kaffeebohnen");
         existing.setActive(false);
 
         when(productConfigurationRepository.findById(1L))
@@ -214,33 +221,30 @@ public class ProductConfigurationServiceTest {
     }
 
     /**
-     * Prüft, ob bei einer neuen categoryName eine neue Kategorie erstellt wird,
-     * falls diese noch nicht existiert.
+     * Prüft, ob bei einer neuen categoryName eine neue Kategorie erstellt wird
+     * (Auto-Create ist derzeit auskommentiert, daher wird keine Category erstellt).
      */
     @Test
-    void createProductConfiguration_withNewCategory_createsCategory() {
+    void createProductConfiguration_withCategoryName_doesNotCreateCategory() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();
-        dto.setProductName("Bananen");
         dto.setTargetWeight(200);
         dto.setTolerance(5);
         dto.setCategoryName("Früchte");
 
-        when(categoryRepository.findByNameIgnoreCase("Früchte"))
-                .thenReturn(Optional.empty());
-
-        when(categoryRepository.save(any(Category.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
         when(productConfigurationRepository.save(any(ProductConfiguration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(translationRepository.findAllByProductConfiguration(any()))
+                .thenReturn(new ArrayList<>());
 
         ProductConfigurationDto result =
                 productConfigurationService.createProductConfiguration(dto);
 
-        assertEquals("Bananen", result.getName());
-        assertEquals("Früchte", result.getCategoryName());
+        assertEquals(200, result.getDefaultTargetWeight());
+        assertEquals(5, result.getDefaultTolerance());
 
-        verify(categoryRepository, times(1)).save(any(Category.class));
+        // Auto-Create ist auskommentiert, daher wird keine Category erstellt
+        verify(categoryRepository, never()).save(any(Category.class));
         verify(productConfigurationRepository, times(1)).save(any(ProductConfiguration.class));
     }
 }
