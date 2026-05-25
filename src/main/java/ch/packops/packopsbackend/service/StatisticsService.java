@@ -2,6 +2,7 @@ package ch.packops.packopsbackend.service;
 
 import ch.packops.packopsbackend.domain.PackageUnit;
 import ch.packops.packopsbackend.domain.Process;
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
 import ch.packops.packopsbackend.dto.DistributionItemDto;
 import ch.packops.packopsbackend.dto.ProcessOverviewDto;
 import ch.packops.packopsbackend.dto.ProductOverviewDto;
@@ -10,6 +11,7 @@ import ch.packops.packopsbackend.repository.PackageRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
 import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 /**
  * @author David M.
  */
-
 @Service
 public class StatisticsService {
     private final ProcessRepository processRepository;
@@ -28,16 +29,17 @@ public class StatisticsService {
     private final LoggingService loggingService;
 
     public StatisticsService(ProcessRepository processRepository,
-            PackageRepository packageRepository,
-            ProductConfigurationRepository productRepository,
-            LoggingService loggingService) {
+                             PackageRepository packageRepository,
+                             ProductConfigurationRepository productRepository,
+                             LoggingService loggingService) {
         this.processRepository = processRepository;
         this.packageRepository = packageRepository;
         this.productRepository = productRepository;
         this.loggingService = loggingService;
     }
 
-    public StatisticsDto getProcessStatistics(Long processId) {
+    @Transactional(readOnly = true)
+    public StatisticsDto getProcessStatistics(Long processId, String language) {
         loggingService.logInfo("Statistiken abgerufen für Prozess: " + processId, processId);
         Process process = processRepository.findById(processId)
                 .orElseThrow(() -> new RuntimeException("Process not found with id: " + processId));
@@ -46,12 +48,13 @@ public class StatisticsService {
         List<Process> processList = Collections.singletonList(process);
 
         StatisticsDto dto = calculateStats(processList, packages);
-        dto.setAvailableProcesses(getAvailableProcesses());
-        dto.setAvailableProducts(getAvailableProducts());
+        dto.setAvailableProcesses(getAvailableProcesses(language));
+        dto.setAvailableProducts(getAvailableProducts(language));
         return dto;
     }
 
-    public StatisticsDto getProductStatistics(Long productId) {
+    @Transactional(readOnly = true)
+    public StatisticsDto getProductStatistics(Long productId, String language) {
         loggingService.logInfo("Statistiken abgerufen für Produkt: " + productId, null);
         List<Process> processes;
         List<PackageUnit> packages;
@@ -65,35 +68,59 @@ public class StatisticsService {
         }
 
         StatisticsDto dto = calculateStats(processes, packages);
-        dto.setAvailableProcesses(getAvailableProcesses());
-        dto.setAvailableProducts(getAvailableProducts());
+        dto.setAvailableProcesses(getAvailableProcesses(language));
+        dto.setAvailableProducts(getAvailableProducts(language));
         return dto;
     }
 
-    public StatisticsDto getOverviewStatistics() {
+    @Transactional(readOnly = true)
+    public StatisticsDto getOverviewStatistics(String language) {
         loggingService.logInfo("Umfassende Statistiken abgerufen (Alle Prozesse)", null);
         List<Process> processes = processRepository.findAll();
         List<PackageUnit> allPackages = packageRepository.findAll();
 
         StatisticsDto dto = calculateStats(processes, allPackages);
-        dto.setAvailableProcesses(getAvailableProcesses());
-        dto.setAvailableProducts(getAvailableProducts());
+        dto.setAvailableProcesses(getAvailableProcesses(language));
+        dto.setAvailableProducts(getAvailableProducts(language));
         return dto;
     }
 
-    private List<ProcessOverviewDto> getAvailableProcesses() {
+    private List<ProcessOverviewDto> getAvailableProcesses(String language) {
+        String langCode = language != null ? language.toLowerCase() : "de";
+        String processPrefix = langCode.equals("en") ? "Process #" : (langCode.equals("fr") ? "Processus #" : "Prozess #");
+
         return processRepository.findAll().stream()
                 .map(p -> new ProcessOverviewDto(p.getId(),
-                        "Prozess #" + p.getId() + " (" + (p.getTargetWeight() != null ? p.getTargetWeight() : 0)
+                        processPrefix + p.getId() + " (" + (p.getTargetWeight() != null ? p.getTargetWeight() : 0)
                                 + "g)"))
                 .collect(Collectors.toList());
     }
 
-    private List<ProductOverviewDto> getAvailableProducts() {
+    private List<ProductOverviewDto> getAvailableProducts(String language) {
+        String langCode = language != null ? language.toLowerCase() : "de";
+
         List<ProductOverviewDto> list = productRepository.findAll().stream()
-                .map(p -> new ProductOverviewDto(p.getId(), p.getName()))
+                .map(p -> {
+                    // Extrahiere den Namen für die gewünschte Sprache, Fallback auf Deutsch
+                    String translatedName = p.getTranslations().stream()
+                            .filter(t -> t.getLanguageCode().equals(langCode))
+                            .map(ProductConfigurationTranslation::getName)
+                            .findFirst()
+                            .orElseGet(() -> p.getTranslations().stream()
+                                    .filter(t -> t.getLanguageCode().equals("de"))
+                                    .map(ProductConfigurationTranslation::getName)
+                                    .findFirst()
+                                    .orElse("Unbekannt"));
+
+                    return new ProductOverviewDto(p.getId(), translatedName);
+                })
                 .collect(Collectors.toList());
-        list.add(0, new ProductOverviewDto(0L, "Ohne Produktzuweisung"));
+
+        // Hardcodierte ID 0 Übersetzung
+        String noProductText = langCode.equals("en") ? "No product assigned" :
+                (langCode.equals("fr") ? "Sans produit assigné" : "Ohne Produktzuweisung");
+        list.add(0, new ProductOverviewDto(0L, noProductText));
+
         return list;
     }
 

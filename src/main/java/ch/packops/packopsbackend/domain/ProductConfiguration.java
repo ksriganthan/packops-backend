@@ -2,6 +2,9 @@ package ch.packops.packopsbackend.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "product_configuration")
 public class ProductConfiguration {
@@ -9,9 +12,6 @@ public class ProductConfiguration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String name;
-    private String description;
     private Integer defaultTargetWeight;
     private Integer defaultTolerance;
     private Integer packageUnits;
@@ -19,28 +19,15 @@ public class ProductConfiguration {
     private String color;
     private Boolean active = true;
 
+    @OneToMany(mappedBy = "productConfiguration", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductConfigurationTranslation> translations = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Integer getDefaultTargetWeight() {
@@ -97,5 +84,14 @@ public class ProductConfiguration {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+
+    public List<ProductConfigurationTranslation> getTranslations() {
+        return translations;
+    }
+
+    public void setTranslations(List<ProductConfigurationTranslation> translations) {
+        this.translations = translations;
     }
 }
