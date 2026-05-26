@@ -58,7 +58,7 @@ public class ProductConfigurationService {
             translationRepository.findAllByProductConfiguration(product);
         dto.setTranslations(translations);
 
-        // Für Abwärtskompatibilität: name und description aus erster Translation setzen
+        // name und description aus erster Translation setzen
         if (translations != null && !translations.isEmpty()) {
             ProductConfigurationTranslation firstTranslation = translations.get(0);
             dto.setName(firstTranslation.getName());
@@ -69,8 +69,25 @@ public class ProductConfigurationService {
     }
 
     public List<ProductConfigurationDto> getProductConfigurations(String categoryName) {
-        return productConfigurationRepository.findAll()
-                .stream().map(this::toDto).collect(Collectors.toList());
+        List<ProductConfiguration> products = productConfigurationRepository.findAll();
+
+        // Falls categoryName gegeben ist, nach Category filtern
+        if (categoryName != null && !categoryName.isEmpty()) {
+            products = products.stream()
+                    .filter(product -> {
+                        if (product.getCategory() == null
+                            || product.getCategory().getTranslations() == null) {
+                            return false;
+                        }
+                        // Prüfe, ob irgendeine Translation den gesuchten Namen hat (case-insensitive)
+                        return product.getCategory().getTranslations().stream()
+                                .anyMatch(translation -> translation.getCategoryName() != null
+                                        && translation.getCategoryName().equalsIgnoreCase(categoryName));
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        return products.stream().map(this::toDto).collect(Collectors.toList());
     }
 
     public ProductConfigurationDto getProductConfiguration(Long id) {
