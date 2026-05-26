@@ -24,13 +24,12 @@ public class ValidationServiceTest {
 
         @BeforeEach
         void setUp() {
-            // Kein Spring Context nötig — ValidationService hat keine Dependencies
+            // ValidationService hat keine Dependencies
             validationService = new ValidationService();
         }
 
-        // ── TC-UC02-03: Zielgewicht Grenzwerte ────────────────────────
+        //  TC-UC02-03: Zielgewicht Grenzwerte
 
-        /** TC-UC02-03: targetWeight = 50 (Minimum) → kein Fehler */
         @Test
         void validateConfig_boundaryMin_noException() {
             ConfigurationDto dto = validConfig();
@@ -38,7 +37,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateConfiguration(dto));
         }
 
-        /** TC-UC02-03: targetWeight = 500 (Maximum) → kein Fehler */
         @Test
         void validateConfig_boundaryMax_noException() {
             ConfigurationDto dto = validConfig();
@@ -46,7 +44,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateConfiguration(dto));
         }
 
-        /** TC-UC02-03: targetWeight = 250 (gültiger Wert) → kein Fehler */
         @Test
         void validateConfig_validTargetWeight_noException() {
             ConfigurationDto dto = validConfig();
@@ -54,7 +51,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateConfiguration(dto));
         }
 
-        /** TC-UC02-03: targetWeight = 49 (unter Minimum) → Exception */
         @Test
         void validateConfig_tooLow_throwsException() {
             ConfigurationDto dto = validConfig();
@@ -66,7 +62,6 @@ public class ValidationServiceTest {
             assertTrue(ex.getMessage().contains("TargetWeight"));
         }
 
-        /** TC-UC02-03: targetWeight = 501 (über Maximum) → Exception */
         @Test
         void validateConfig_tooHigh_throwsException() {
             ConfigurationDto dto = validConfig();
@@ -78,9 +73,8 @@ public class ValidationServiceTest {
             assertTrue(ex.getMessage().contains("TargetWeight"));
         }
 
-        // ── TC-UC02-04: Toleranz positiv ──────────────────────────────
+        // TC-UC02-04: Toleranz positiv
 
-        /** TC-UC02-04: Toleranz = 10 (positiv) → kein Fehler */
         @Test
         void validateConfig_validTolerance_noException() {
             ConfigurationDto dto = validConfig();
@@ -88,7 +82,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateConfiguration(dto));
         }
 
-        /** TC-UC02-04: Toleranz = 0 (Grenzwert, erlaubt) → kein Fehler */
         @Test
         void validateConfig_zeroTolerance_noException() {
             ConfigurationDto dto = validConfig();
@@ -96,9 +89,8 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateConfiguration(dto));
         }
 
-        // ── TC-UC02-05: Toleranz negativ → Fehler, keine Speicherung ──
+        //TC-UC02-05: Toleranz negativ → Fehler, keine Speicherung
 
-        /** TC-UC02-05: Toleranz = -1 → Exception (Speicherung verhindert) */
         @Test
         void validateConfig_negativeTolerance_throwsException() {
             ConfigurationDto dto = validConfig();
@@ -110,9 +102,8 @@ public class ValidationServiceTest {
             assertTrue(ex.getMessage().contains("Tolerance"));
         }
 
-        // ── TC-UC04-05: Passwort-Richtlinien ──────────────────────────
+        // TC-UC04-05: Passwort-Richtlinien
 
-        /** TC-UC04-05: Passwort = 6 Zeichen (Grenzwert) → kein Fehler */
         @Test
         void validateUser_validPassword_noException() {
             UserCreateDto dto = validUser();
@@ -120,7 +111,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateUser(dto));
         }
 
-        /** TC-UC04-05: Passwort = 4 Zeichen (zu kurz) → Exception */
         @Test
         void validateUser_tooShortPassword_throwsException() {
             UserCreateDto dto = validUser();
@@ -132,7 +122,6 @@ public class ValidationServiceTest {
             assertTrue(ex.getMessage().contains("Password"));
         }
 
-        /** TC-UC04-05: Gültige E-Mail (mit @) → kein Fehler */
         @Test
         void validateUser_validEmail_noException() {
             UserCreateDto dto = validUser();
@@ -140,7 +129,6 @@ public class ValidationServiceTest {
             assertDoesNotThrow(() -> validationService.validateUser(dto));
         }
 
-        /** TC-UC04-05: E-Mail ohne @ → Exception */
         @Test
         void validateUser_invalidEmail_throwsException() {
             UserCreateDto dto = validUser();
@@ -152,7 +140,7 @@ public class ValidationServiceTest {
             assertTrue(ex.getMessage().contains("Email"));
         }
 
-        // ── Hilfsmethoden ─────────────────────────────────────────────
+        //Hilfsmethoden
 
         private ConfigurationDto validConfig() {
             ConfigurationDto dto = new ConfigurationDto();

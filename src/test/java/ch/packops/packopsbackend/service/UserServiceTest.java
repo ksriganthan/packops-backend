@@ -23,11 +23,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Kapischan Sriganthan
-
  * Unit Tests für UserService
- * TC-UC05-04 — Benutzer-Suchmethode liefert alle Benutzer
- * TC-UC06-02 — UserID existiert nicht → Exception
- * TC-UC06-03 — Passwort wird gehasht (nicht Klartext gespeichert)
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -54,9 +50,8 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    // ── TC-UC05-04: Alle Benutzer zurückgeben ─────────────────────
+    // TC-UC05-04: Alle Benutzer zurückgeben
 
-    /** TC-UC05-04: getUsers() gibt alle User als DTO-Liste zurück */
     @Test
     void getUsers_returnsAllUsers() {
         User user1 = createUser(1L, "admin", "admin@packops.ch", "admin");
@@ -72,7 +67,7 @@ public class UserServiceTest {
         assertEquals("operator", result.get(1).getUsername());
     }
 
-    // ── TC-UC06-02: UserID existiert nicht → Exception ────────────
+    // TC-UC06-02: UserID existiert nicht → Exception
 
     /** TC-UC06-02: deleteUser() mit nicht-existierender ID → RuntimeException */
     @Test
@@ -86,7 +81,6 @@ public class UserServiceTest {
         assertTrue(ex.getMessage().contains("999") || ex.getMessage().contains("not found"));
     }
 
-    /** TC-UC06-02: updateUser() mit nicht-existierender ID → RuntimeException */
     @Test
     void updateUser_notFound_throwsException() {
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
@@ -97,12 +91,8 @@ public class UserServiceTest {
         assertThrows(RuntimeException.class, () -> userService.updateUser(999L, dto));
     }
 
-    // ── TC-UC06-03: Passwort wird gehasht ─────────────────────────
+    // TC-UC06-03: Passwort wird gehasht
 
-    /**
-     * TC-UC06-03: updateUser() ruft passwordService.hash() auf —
-     * das Klartext-Passwort wird nie direkt gespeichert.
-     */
     @Test
     void updateUser_passwordIsHashed() {
         User existing = createUser(1L, "kapi", "kapi@packops.ch", "operator");
@@ -124,7 +114,6 @@ public class UserServiceTest {
         assertEquals("$2a$10$hashed_value", captor.getValue().getPasswordHash());
     }
 
-    /** TC-UC06-03: createUser() hasht das Passwort beim Erstellen */
     @Test
     void createUser_passwordIsHashedOnCreate() {
         when(passwordService.hash("start123")).thenReturn("$2a$10$hashed_on_create");
@@ -143,7 +132,7 @@ public class UserServiceTest {
         assertEquals("$2a$10$hashed_on_create", captor.getValue().getPasswordHash());
     }
 
-    // ── Hilfsmethode ──────────────────────────────────────────────
+    // Hilfsmethode
 
     private User createUser(Long id, String username, String email, String role) {
         User user = new User();

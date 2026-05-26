@@ -11,6 +11,7 @@ import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
 import ch.packops.packopsbackend.repository.ProductConfigurationTranslationRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,17 @@ public class ProductConfigurationService {
             dto.setCategoryId(product.getCategory().getId());
         }
 
-        dto.setTranslations(translationRepository.findAllByProductConfiguration(product));
+        // Translations setzen
+        ArrayList<ProductConfigurationTranslation> translations =
+            translationRepository.findAllByProductConfiguration(product);
+        dto.setTranslations(translations);
+
+        // Für Abwärtskompatibilität: name und description aus erster Translation setzen
+        if (translations != null && !translations.isEmpty()) {
+            ProductConfigurationTranslation firstTranslation = translations.get(0);
+            dto.setName(firstTranslation.getName());
+            dto.setDescription(firstTranslation.getDescription());
+        }
 
         return dto;
     }
@@ -79,7 +90,10 @@ public class ProductConfigurationService {
         product.setColor(dto.getColor());
         product.setPackageUnits(0);
         ProductConfiguration saved = productConfigurationRepository.save(product);
-        if (dto.getTranslations() != null) {
+
+        // Translations speichern
+        if (dto.getTranslations() != null && !dto.getTranslations().isEmpty()) {
+            // Falls Translations vorhanden sind, diese verwenden
             for (ProductConfigurationTranslation transDto : dto.getTranslations()) {
                 ProductConfigurationTranslation translationEntity = new ProductConfigurationTranslation();
                 translationEntity.setProductConfiguration(saved);
@@ -89,7 +103,16 @@ public class ProductConfigurationService {
 
                 translationRepository.save(translationEntity);
             }
+        } else if (dto.getProductName() != null) {
+            // Automatisch Translation aus productName/description erstellen
+            ProductConfigurationTranslation translation = new ProductConfigurationTranslation();
+            translation.setProductConfiguration(saved);
+            translation.setLanguageCode("de"); // Default-Sprache
+            translation.setName(dto.getProductName());
+            translation.setDescription(dto.getDescription());
+            translationRepository.save(translation);
         }
+
         // Category-Handling über Helper-Methode
         handleCategoryAssignment(product, dto.getCategoryId(), dto.getCategoryName());
 
@@ -159,10 +182,10 @@ public class ProductConfigurationService {
     }
 
     /**
-     * Helper-Methode: Weist einem Produkt eine Category zu
+     * Weist einem Produkt eine Category zu
      * - Wenn categoryId angegeben: Suche nach ID
      * - Wenn categoryName angegeben: Case-insensitive Suche nach Name, erstelle neue falls nicht vorhanden
-     * - Auto-Create ermöglicht flexible Category-Verwaltung (Groß-/Kleinschreibung wird ignoriert)
+     * - Auto-Create ermöglicht flexible Category-Verwaltung (Groß-/Kleinschreibung wird ignoriert) Todo
      */
     private void handleCategoryAssignment(ProductConfiguration product, Long categoryId, String categoryName) {
         if (categoryId != null) {

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit Tests für ConfigurationService
- *   TC-UC08-08 — DB speichert richtigen Zustand nach updateConfiguration
  */
 @ExtendWith(MockitoExtension.class)
 public class ConfigurationServiceTest {
@@ -40,10 +39,6 @@ public class ConfigurationServiceTest {
 
     // ── TC-UC08-08: updateConfiguration speichert korrekte Werte ──
 
-    /**
-     * TC-UC08-08: Rückgabe-DTO enthält exakt die Werte aus dem Input-DTO.
-     * Prüft das Mapping DTO → Domain → DTO.
-     */
     @Test
     void updateConfiguration_savesCorrectValues() {
         ConfigurationDto dto = new ConfigurationDto();
@@ -71,10 +66,6 @@ public class ConfigurationServiceTest {
         assertEquals(5, result.getMaxIterationsForReject());
     }
 
-    /**
-     * TC-UC08-08: Das Configuration-Entity, das an save() übergeben wird,
-     * enthält exakt die DTO-Werte.
-     */
     @Test
     void updateConfiguration_passesCorrectEntityToRepository() {
         ConfigurationDto dto = new ConfigurationDto();
@@ -107,7 +98,6 @@ public class ConfigurationServiceTest {
         assertEquals(3, saved.getMaxIterations()); // Entity-Feld = maxIterations
     }
 
-    /** TC-UC08-08: Bestehende Config wird aktualisiert (kein neues Objekt). */
     @Test
     void updateConfiguration_updatesExistingConfiguration() {
         Configuration existing = new Configuration();
@@ -132,7 +122,6 @@ public class ConfigurationServiceTest {
         assertEquals(20, result.getTolerance());
     }
 
-    /** ValidationService wird korrekt delegiert. */
     @Test
     void updateConfiguration_callsValidationService() {
         ConfigurationDto dto = new ConfigurationDto();
@@ -153,7 +142,6 @@ public class ConfigurationServiceTest {
         verify(validationService, times(1)).validateConfiguration(dto);
     }
 
-    /** Nach Update wird AuditLog geschrieben. */
     @Test
     void updateConfiguration_callsLoggingService() {
         ConfigurationDto dto = new ConfigurationDto();
@@ -174,7 +162,6 @@ public class ConfigurationServiceTest {
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 
-    /** Leere DB → RuntimeException bei getConfiguration(). */
     @Test
     void getConfiguration_emptyRepository_throwsException() {
         when(configurationRepository.findAll()).thenReturn(Collections.emptyList());

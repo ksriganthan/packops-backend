@@ -26,12 +26,6 @@ import static org.mockito.Mockito.*;
 /**
  * @author Kapischan Sriganthan
  * Unit Tests für ProductConfigurationService
- * Deckt zentrale Service-Logik ab:
- * - Produkt erstellen
- * - Partial Update
- * - Aktivieren / Deaktivieren
- * - Delegation an ValidationService
- * - Logging nach Änderungen
  */
 @ExtendWith(MockitoExtension.class) // JUnit soll Mockito in diesem Test aktivieren
 public class ProductConfigurationServiceTest {
@@ -54,10 +48,6 @@ public class ProductConfigurationServiceTest {
     @InjectMocks
     private ProductConfigurationService productConfigurationService;
 
-    /**
-     * Prüft, ob createProductConfiguration() die Werte aus dem CreateDto
-     * korrekt in ein ProductConfiguration-Entity überträgt und speichert.
-     */
     @Test
     void createProductConfiguration_savesCorrectValues() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();
@@ -94,10 +84,6 @@ public class ProductConfigurationServiceTest {
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 
-    /**
-     * Prüft mit ArgumentCaptor, ob das Entity, das an save() übergeben wird,
-     * exakt die Werte aus dem CreateDto enthält.
-     */
     @Test
     void createProductConfiguration_passesCorrectEntityToRepository() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();
@@ -127,11 +113,6 @@ public class ProductConfigurationServiceTest {
         assertEquals("red", saved.getColor());
     }
 
-    /**
-     * Prüft Partial Update:
-     * Nur Felder, die im UpdateDto nicht null sind, werden geändert.
-     * Nicht mitgeschickte Felder bleiben unverändert.
-     */
     @Test
     void updateProductConfiguration_partialUpdate_updatesOnlyProvidedFields() {
         ProductConfiguration existing = new ProductConfiguration();
@@ -165,9 +146,6 @@ public class ProductConfigurationServiceTest {
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 
-    /**
-     * Prüft, ob bei einer nicht existierenden Produkt-ID eine RuntimeException geworfen wird.
-     */
     @Test
     void updateProductConfiguration_productNotFound_throwsException() {
         ProductConfigurationUpdateDto dto = new ProductConfigurationUpdateDto();
@@ -182,9 +160,6 @@ public class ProductConfigurationServiceTest {
         verify(productConfigurationRepository, never()).save(any());
     }
 
-    /**
-     * Prüft, ob ein aktives Produkt deaktiviert wird.
-     */
     @Test
     void activateOrDeactivateProductConfiguration_activeProduct_becomesInactive() {
         ProductConfiguration existing = new ProductConfiguration();
@@ -201,9 +176,6 @@ public class ProductConfigurationServiceTest {
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 
-    /**
-     * Prüft, ob ein inaktives Produkt wieder aktiviert wird.
-     */
     @Test
     void activateOrDeactivateProductConfiguration_inactiveProduct_becomesActive() {
         ProductConfiguration existing = new ProductConfiguration();
@@ -220,10 +192,6 @@ public class ProductConfigurationServiceTest {
         verify(loggingService, times(1)).logInfo(anyString(), isNull());
     }
 
-    /**
-     * Prüft, ob bei einer neuen categoryName eine neue Kategorie erstellt wird
-     * (Auto-Create ist derzeit auskommentiert, daher wird keine Category erstellt).
-     */
     @Test
     void createProductConfiguration_withCategoryName_doesNotCreateCategory() {
         ProductConfigurationCreateDto dto = new ProductConfigurationCreateDto();

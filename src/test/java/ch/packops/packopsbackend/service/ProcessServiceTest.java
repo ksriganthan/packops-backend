@@ -26,11 +26,8 @@ import static org.mockito.Mockito.*;
  * @author Kapischan Sriganthan
  */
 
-
 /**
  * Unit Tests für ProcessService
- *   TC-UC03-02 — Leere DB → leere Liste
- *   TC-UC03-04 — Prozessdaten korrekt zu DTO gemappt
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -63,9 +60,8 @@ public class ProcessServiceTest {
     @InjectMocks
     private ProcessService processService;
 
-    // ── TC-UC03-02: Leere DB ───────────────────────────────────────
+    // TC-UC03-02: Leere DB
 
-    /** TC-UC03-02: Keine Prozesse in DB → getAllProcesses() gibt leere Liste zurück */
     @Test
     void getAllProcesses_emptyRepository_returnsEmptyList() {
         when(processRepository.findAll()).thenReturn(Collections.emptyList());
@@ -76,13 +72,8 @@ public class ProcessServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    // ── TC-UC03-04: Felder korrekt gemappt ────────────────────────
+    // TC-UC03-04: Felder korrekt gemappt
 
-    /**
-     * TC-UC03-04: Alle Felder eines Process-Objekts werden 1:1 in ProcessDto gemappt.
-     * Prüft: processId, status, startTimestamp, targetWeight, tolerance,
-     *        maxUnits, maxIterationsForReject, unitsPacked, userId
-     */
     @Test
     void getAllProcesses_mapsFieldsCorrectly() {
         User user = new User();
@@ -130,7 +121,6 @@ public class ProcessServiceTest {
         assertEquals(42L, dto.getUserId());
     }
 
-    /** TC-UC03-04: Process ohne User → userId im DTO ist null */
     @Test
     void getAllProcesses_processWithoutUser_userIdIsNull() {
         Process process = new Process();

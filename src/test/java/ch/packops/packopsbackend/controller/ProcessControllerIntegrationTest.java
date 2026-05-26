@@ -19,9 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * @author Kapischan Sriganthan
- * Integrationstests
- *   TC-UC03-02 — Datenbank leer → API liefert leere Liste
- *   TC-UC03-03 — Service wirft Fehler → API liefert Fehlerstatus
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -101,12 +98,8 @@ public class ProcessControllerIntegrationTest {
         configurationRepository.save(config);
     }
 
-       // ── TC-UC03-02: Datenbank leer → leere Liste ──────────────────────
+       // TC-UC03-02: Datenbank leer → leere Liste
 
-    /**
-     * TC-UC03-02: GET /api/process (Datenbank leer)
-     * → HTTP 200, leere Liste
-     */
     @Test
     void getProcesses_emptyDatabase_returnsEmptyList() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
@@ -120,10 +113,6 @@ public class ProcessControllerIntegrationTest {
 
     // ── TC-UC03-03: Service wirft Fehler → Fehlerstatus ───────────────
 
-    /**
-     * TC-UC03-03: GET /api/process/{id} mit nicht-existierender ID
-     * → HTTP 500 (Service wirft RuntimeException)
-     */
     @Test
     void getProcess_nonExistingId_returns500() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
@@ -138,11 +127,8 @@ public class ProcessControllerIntegrationTest {
                 .andExpect(status().is5xxServerError());
     }
 
-    // ── Admin sieht alle Prozesse, Operator nur eigene ────────────────
+    // Admin sieht alle Prozesse, Operator nur eigene
 
-    /**
-     * Operator erstellt Prozess → Admin sieht ihn, Operator auch
-     */
     @Test
     void getProcesses_adminSeesAll_operatorSeesOwn() throws Exception {
         String operatorToken = loginAndGetToken("operator", "operator123");
@@ -176,7 +162,7 @@ public class ProcessControllerIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(1));
     }
 
-    // ── Hilfsmethoden ─────────────────────────────────────────────────
+    // Hilfsmethoden
 
     private void createUser(String username, String email, String password, String role) {
         User user = new User();

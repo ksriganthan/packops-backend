@@ -22,8 +22,6 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit Tests für LoggingService
- *   A10 (Basis) — System schreibt serverseitigen Log (Level = INFO)
- *   TC-UC10-04  — Logeintrag bei Rückführvorgang (Level = WARN)
  */
 @ExtendWith(MockitoExtension.class)
 public class LoggingServiceTest {
@@ -37,12 +35,8 @@ public class LoggingServiceTest {
         @InjectMocks
         private LoggingService loggingService;
 
-        // ── A10: logInfo() ─────────────────────────────────────────────
+        // A10: logInfo()
 
-        /**
-         * A10 (Basis): logInfo() speichert einen AuditLog mit Level "INFO"
-         * und der übergebenen Nachricht.
-         */
         @Test
         void logInfo_savesAuditLog() {
             loggingService.logInfo("Konfiguration aktualisiert", null);
@@ -57,7 +51,6 @@ public class LoggingServiceTest {
             assertNull(saved.getProcess());
         }
 
-        /** A10: logInfo() mit processId — Prozess wird im Log verlinkt. */
         @Test
         void logInfo_withProcessId_linksProcess() {
             Process process = new Process();
@@ -75,11 +68,6 @@ public class LoggingServiceTest {
 
         // ── TC-UC10-04: logDeadlock() → WARN ──────────────────────────
 
-        /**
-         * TC-UC10-04: logDeadlock() erstellt AuditLog mit Level "WARN"
-         * bei Deadlock (Portion wird aus Bucket zurückgeführt).
-         * Prüft: Level = WARN, Bucket-Nr. in Message, Prozess verlinkt.
-         */
         @Test
         void logDeadlock_createsWarnLog() {
             Process process = new Process();
@@ -99,10 +87,6 @@ public class LoggingServiceTest {
             assertNotNull(saved.getCreatedAt());
         }
 
-        /**
-         * TC-UC10-04: logDeadlock() mit nicht-existierender ProcessId → Exception.
-         * Kein AuditLog wird gespeichert.
-         */
         @Test
         void logDeadlock_processNotFound_throwsException() {
             when(processRepository.findById(999L)).thenReturn(Optional.empty());

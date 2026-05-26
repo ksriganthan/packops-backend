@@ -45,8 +45,10 @@ public class ValidationService {
         if (dto == null) {
             throw new IllegalArgumentException("Product cannot be null");
         }
-        if (dto.getTranslations() == null || dto.getTranslations().isEmpty()) {
-            throw new IllegalArgumentException("Product translations cannot be empty (DE, FR, EN)");
+        // Entweder translations oder productName muss vorhanden sein
+        if ((dto.getTranslations() == null || dto.getTranslations().isEmpty())
+            && (dto.getProductName() == null || dto.getProductName().isEmpty())) {
+            throw new IllegalArgumentException("Product must have either translations or productName");
         }
         if (dto.getTargetWeight() == null || dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
             throw new IllegalArgumentException("TargetWeight must be between 50 and 500");

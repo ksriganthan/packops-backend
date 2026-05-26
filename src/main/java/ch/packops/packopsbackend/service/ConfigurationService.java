@@ -76,7 +76,6 @@ public class ConfigurationService {
         if (dto.getMaxIterationsForReject() != null) {
             existing.setMaxIterations(dto.getMaxIterationsForReject());
         }
-        // Todo: Was ist mit Language?
         if (dto.getLanguage() != null) {
             existing.setLanguage(dto.getLanguage());
         }

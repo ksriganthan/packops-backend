@@ -21,14 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Kapischan Sriganthan
  */
 
-/**
- * Integrationstests für ConfigurationController
- *   TC-UC02-01 — Gültige Konfiguration → 200 OK, Werte gespeichert
- *   TC-UC02-02 — targetWeight ausserhalb 50–500 → 400 Bad Request
- *
- * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Controller → Service → Validation → DB
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ConfigurationControllerIntegrationTest {
@@ -73,12 +65,7 @@ public class ConfigurationControllerIntegrationTest {
         configurationRepository.save(config);
     }
 
-    // ── TC-UC02-01: Gültige Config → 200 OK ───────────────────────
-
-    /**
-     * TC-UC02-01: PUT /api/configuration mit gültigen Werten
-     * → HTTP 200, Antwort-JSON enthält die gespeicherten Werte
-     */
+    // TC-UC02-01: Gültige Config → 200 OK
     @Test
     void updateConfig_valid_returns200() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
@@ -123,10 +110,6 @@ public class ConfigurationControllerIntegrationTest {
 
     // ── TC-UC02-02: Ungültige Config → 400 Bad Request ────────────
 
-    /**
-     * TC-UC02-02: targetWeight = 49 (unter Minimum 50g) → 400 Bad Request
-     * ValidationService wirft IllegalArgumentException → Controller gibt 400 zurück.
-     */
     @Test
     void updateConfig_tooLow_returns400() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
@@ -145,9 +128,6 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    /**
-     * TC-UC02-02: targetWeight = 501 (über Maximum 500g) → 400 Bad Request
-     */
     @Test
     void updateConfig_tooHigh_returns400() throws Exception {
         String token = loginAndGetToken("operator", "operator123");
@@ -182,7 +162,7 @@ public class ConfigurationControllerIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // ── Hilfsmethode ──────────────────────────────────────────────
+    // Hilfsmethode
 
     private String loginAndGetToken(String username, String password) throws Exception {
         String response = mockMvc.perform(post("/api/auth/login")

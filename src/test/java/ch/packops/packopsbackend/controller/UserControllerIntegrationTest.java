@@ -19,17 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Kapischan Sriganthan
  */
 
-/**
- * Integrationstests für UserController
- *   TC-UC04-02 — Der neue Benutzer ist in der Datenbank vorhanden
- *   TC-UC04-04 — Benutzername existiert bereits → API liefert Fehler
- *   TC-UC05-02 — Klick auf User → API liefert Details
- *   TC-UC07-02 — Falsche Daten → Fehlermeldung
- *   TC-UC07-03 — Logout → Token wird ungültig
- *
- * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Controller → Service → DB
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerIntegrationTest {
@@ -57,12 +46,8 @@ public class UserControllerIntegrationTest {
         createUser("operator", "operator@test.ch", "operator123", "operator");
     }
 
-    // ── TC-UC04-02: Benutzer ist in der Datenbank vorhanden ───────────
+    //TC-UC04-02: Benutzer ist in der Datenbank vorhanden
 
-    /**
-     * TC-UC04-02: POST /api/users mit gültigen Daten
-     * → HTTP 200, Benutzer ist in DB gespeichert
-     */
     @Test
     void createUser_valid_userExistsInDatabase() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -86,12 +71,8 @@ public class UserControllerIntegrationTest {
         assert userRepository.findByUsername("newuser").isPresent();
     }
 
-    // ── TC-UC04-04: Benutzername existiert bereits → Fehler ───────────
+    // TC-UC04-04: Benutzername existiert bereits → Fehler
 
-    /**
-     * TC-UC04-04: POST /api/users mit existierendem Benutzernamen
-     * → HTTP 400 Bad Request
-     */
     @Test
     void createUser_duplicateUsername_returns400() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -112,10 +93,6 @@ public class UserControllerIntegrationTest {
 
     // ── TC-UC05-02: API liefert Benutzer-Details ──────────────────────
 
-    /**
-     * TC-UC05-02: GET /api/users/{id} mit gültigem User
-     * → HTTP 200, korrekte Detaildaten
-     */
     @Test
     void getUser_existingId_returnsDetails() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -129,10 +106,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.role").value("operator"));
     }
 
-    /**
-     * TC-UC05-02: GET /api/users/{id} mit nicht-existierender ID
-     * → HTTP 404 oder 500 (Exception)
-     */
     @Test
     void getUser_nonExistingId_returnsError() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -142,15 +115,9 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().is5xxServerError());
     }
 
-    // ── TC-UC06-05: Login mit gelöschtem Account → Fehler ─────────────
-
 
     // ── TC-UC07-02: Falsche Daten → Fehlermeldung ─────────────────────
 
-    /**
-     * TC-UC07-02: POST /api/auth/login mit falschem Passwort
-     * → HTTP 401, keine Token-Ausgabe
-     */
     @Test
     void login_wrongPassword_returns401() throws Exception {
         mockMvc.perform(post("/api/auth/login")
@@ -164,10 +131,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    /**
-     * TC-UC07-02: POST /api/auth/login mit falschem Benutzernamen
-     * → HTTP 401
-     */
     @Test
     void login_wrongUsername_returns401() throws Exception {
         mockMvc.perform(post("/api/auth/login")
@@ -183,10 +146,6 @@ public class UserControllerIntegrationTest {
 
     // ── TC-UC07-03: Logout → Token wird ungültig ──────────────────────
 
-    /**
-     * TC-UC07-03: POST /api/auth/logout → Token wird ungültig
-     * → weitere Requests mit diesem Token werden abgelehnt (401)
-     */
     @Test
     void logout_invalidatesToken_returns401OnNextRequest() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -202,12 +161,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // ── TC-UC09-04: Sprachwechsel ─────────────────────────────────────
-
-    /**
-     * TC-UC09-04: PUT /api/users/{id}/language mit gültiger Sprache
-     * → HTTP 200, Sprache wird aktualisiert
-     */
+    // TC-UC09-04: Sprachwechsel
     @Test
     void changeLanguage_valid_returns200() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -220,7 +174,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.language").value("en"));
     }
 
-    // ── Hilfsmethoden ─────────────────────────────────────────────────
+    // Hilfsmethoden
 
     private void createUser(String username, String email, String password, String role) {
         User user = new User();

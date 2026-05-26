@@ -21,17 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Kapischan Sriganthan
  */
 
-/**
- * Integrationstests für ProductConfigurationController
- *   TC-UC08-02 — Produkt mit gültigem Gewicht erstellen → 200 OK
- *   TC-UC08-03 — Produkt targetWeight ausserhalb 50–500 → 400 Bad Request
- *   TC-UC08-04 — Produkt negative Toleranz → 400 Bad Request
- *   TC-UC08-05 — Produkt löschen → 204 No Content
- *   TC-UC08-06 — Viewer darf kein Produkt erstellen → 403 Forbidden
- *
- * Teststrategie: @SpringBootTest + MockMvc + H2 In-Memory DB
- * → Vollständiges Zusammenspiel: Controller → Service → Validation → DB
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ProductConfigurationControllerIntegrationTest {
@@ -63,12 +52,8 @@ public class ProductConfigurationControllerIntegrationTest {
         createUser("viewer", "viewer@test.ch", "viewer123", "viewer");
     }
 
-    // ── TC-UC08-02: Gültiges Produkt erstellen → 200 OK ───────────
+    // TC-UC08-02: Gültiges Produkt erstellen → 200 OK
 
-    /**
-     * TC-UC08-02: POST /api/products mit gültigen Werten (targetWeight 50–500)
-     * → HTTP 200, Antwort enthält den Produktnamen
-     */
     @Test
     void createProduct_valid_returns200() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -89,9 +74,6 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(jsonPath("$.defaultTargetWeight").value(250));
     }
 
-    /**
-     * TC-UC08-02: Grenzwert targetWeight = 50 (Minimum) → 200 OK
-     */
     @Test
     void createProduct_boundaryMinWeight_returns200() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -110,12 +92,8 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(jsonPath("$.defaultTargetWeight").value(50));
     }
 
-    // ── TC-UC08-03: Ungültiges Gewicht → 400 ──────────────────────
+    // TC-UC08-03: Ungültiges Gewicht → 400
 
-    /**
-     * TC-UC08-03: targetWeight = 49 (unter Minimum 50g) → 400 Bad Request
-     * ValidationService.validateProduct() wirft IllegalArgumentException
-     */
     @Test
     void createProduct_tooLowWeight_returns400() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -133,9 +111,6 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-    /**
-     * TC-UC08-03: targetWeight = 501 (über Maximum 500g) → 400 Bad Request
-     */
     @Test
     void createProduct_tooHighWeight_returns400() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -155,9 +130,6 @@ public class ProductConfigurationControllerIntegrationTest {
 
     // ── TC-UC08-04: Negative Toleranz → 400 ───────────────────────
 
-    /**
-     * TC-UC08-04: tolerance = -1 → 400 Bad Request
-     */
     @Test
     void createProduct_negativeTolerance_returns400() throws Exception {
         String token = loginAndGetToken("admin", "admin123");
@@ -177,9 +149,6 @@ public class ProductConfigurationControllerIntegrationTest {
 
     // ── TC-UC08-05: Produkt löschen → 204 ─────────────────────────
 
-    /**
-     * TC-UC08-05: DELETE /api/products/{id} mit existierender ID → 204 No Content
-     */
     @Test
     void deleteProduct_existing_returns204() throws Exception {
         String adminToken = loginAndGetToken("admin", "admin123");
@@ -210,12 +179,8 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(status().isNoContent());
     }
 
-    // ── TC-UC08-06: Viewer → 403 Forbidden ────────────────────────
+    //TC-UC08-06: Viewer → 403 Forbidden
 
-    /**
-     * TC-UC08-06: Viewer hat keine Schreibrechte auf POST /api/products → 403
-     * (Spring Security: nur admin darf Produkte erstellen)
-     */
     @Test
     void createProduct_viewerForbidden_returns403() throws Exception {
         String viewerToken = loginAndGetToken("viewer", "viewer123");
@@ -233,18 +198,12 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-    /**
-     * GET /api/products ohne Token → 401 Unauthorized
-     */
     @Test
     void getProducts_noToken_returns401() throws Exception {
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isUnauthorized());
     }
 
-    /**
-     * GET /api/products mit gültigem Token → 200 OK (alle Rollen dürfen lesen)
-     */
     @Test
     void getProducts_withToken_returns200() throws Exception {
         String token = loginAndGetToken("viewer", "viewer123");
@@ -254,7 +213,7 @@ public class ProductConfigurationControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
-    // ── Hilfsmethoden ─────────────────────────────────────────────
+    // Hilfsmethoden
 
     private void createUser(String username, String email, String password, String role) {
         User user = new User();
