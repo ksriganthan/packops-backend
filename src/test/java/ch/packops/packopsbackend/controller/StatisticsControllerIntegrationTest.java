@@ -3,6 +3,7 @@ package ch.packops.packopsbackend.controller;
 import ch.packops.packopsbackend.domain.PackageUnit;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.repository.AuditLogRepository;
 import ch.packops.packopsbackend.repository.PackageRepository;
@@ -78,7 +79,13 @@ public class StatisticsControllerIntegrationTest {
         userRepository.save(user);
 
         ProductConfiguration product = new ProductConfiguration();
-        product.setName("Test Product");
+        
+        ProductConfigurationTranslation pt = new ProductConfigurationTranslation();
+        pt.setLanguageCode("de");
+        pt.setName("Test Product");
+        pt.setProductConfiguration(product);
+        product.setTranslations(java.util.Collections.singletonList(pt));
+        
         product = productRepository.save(product);
         productConfigId = product.getId();
 

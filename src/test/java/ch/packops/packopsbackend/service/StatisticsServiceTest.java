@@ -3,6 +3,7 @@ package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.domain.PackageUnit;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
+import ch.packops.packopsbackend.domain.ProductConfigurationTranslation;
 import ch.packops.packopsbackend.dto.StatisticsDto;
 import ch.packops.packopsbackend.repository.PackageRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
@@ -56,7 +57,12 @@ public class StatisticsServiceTest {
         } catch (Exception e) {
             fail("ProductConfiguration-ID konnte nicht gesetzt werden");
         }
-        product1.setName("Test Product");
+        
+        ProductConfigurationTranslation pt = new ProductConfigurationTranslation();
+        pt.setLanguageCode("de");
+        pt.setName("Test Product");
+        pt.setProductConfiguration(product1);
+        product1.setTranslations(Collections.singletonList(pt));
 
         process1 = new Process();
         try {
@@ -109,7 +115,7 @@ public class StatisticsServiceTest {
         when(packageRepository.findAll()).thenReturn(Arrays.asList(pkg1, pkg2, pkg3));
         when(productRepository.findAll()).thenReturn(Collections.singletonList(product1));
 
-        StatisticsDto result = statisticsService.getOverviewStatistics();
+        StatisticsDto result = statisticsService.getOverviewStatistics("de");
 
         verify(loggingService).logInfo(anyString(), isNull());
         assertNotNull(result);
@@ -126,7 +132,7 @@ public class StatisticsServiceTest {
         when(packageRepository.findByProcessProductConfigurationId(1L)).thenReturn(Arrays.asList(pkg1, pkg2));
         when(productRepository.findAll()).thenReturn(Collections.singletonList(product1));
 
-        StatisticsDto result = statisticsService.getProductStatistics(1L);
+        StatisticsDto result = statisticsService.getProductStatistics(1L, "de");
 
         verify(loggingService).logInfo(anyString(), isNull());
         assertEquals(1, result.getTotalProcesses());
