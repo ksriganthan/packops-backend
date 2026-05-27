@@ -9,38 +9,8 @@ import java.util.List;
 
 public class CombinationAlgorithm {
 
-    public List<Portion> findBestCombination(List<Portion> portions, int targetWeight, int tolerance) {
-        if (portions == null || portions.isEmpty()) {
-            return Collections.emptyList();
-        }
 
-        List<Portion> best = Collections.emptyList();
-        int bestDeviation = Integer.MAX_VALUE;
-        int numberOfCombinations = 1 << portions.size();
-
-        for (int mask = 1; mask < numberOfCombinations; mask++) {
-            List<Portion> candidate = new ArrayList<>();
-            int sum = 0;
-
-            for (int i = 0; i < portions.size(); i++) {
-                if ((mask & (1 << i)) != 0) {
-                    Portion portion = portions.get(i);
-                    candidate.add(portion);
-                    sum += safeWeight(portion);
-                }
-            }
-
-            int deviation = Math.abs(targetWeight - sum);
-            if (deviation <= tolerance && deviation < bestDeviation) {
-                best = candidate;
-                bestDeviation = deviation;
-            }
-        }
-
-        return best;
-    }
-
-    public List<MemoryBucket> findBestBucketCombination(List<MemoryBucket> buckets, int targetWeight, int tolerance) {
+        public List<MemoryBucket> findBestBucketCombination(List<MemoryBucket> buckets, int targetWeight, int tolerance) {
         if (buckets == null || buckets.isEmpty()) {
             return Collections.emptyList();
         }

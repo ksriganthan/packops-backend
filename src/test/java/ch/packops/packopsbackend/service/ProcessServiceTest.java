@@ -137,32 +137,4 @@ public class ProcessServiceTest {
 
         assertNull(result.getFirst().getUserId());
     }
-
-    /**
-     *
-     * TC-UC01: Process-Start
-     *   - TC-UC01-01: Erfolgreicher Start
-     *   - TC-UC01-02: Ungültige Parameter
-     *   - TC-UC01-03: Default-Werte aus Configuration
-     *
-     * TC-UC02: Process-Stopp
-     *   - TC-UC02-01: Erfolgreicher Stopp
-     *   - TC-UC02-02: Ungültige Process-ID
-     *   - TC-UC02-03: Bereits gestoppter Process
-     *
-     * TC-UC10: Status-Abfrage
-     *   - TC-UC10-01: Laufender Process
-     *   - TC-UC10-02: Gestoppter Process
-     *   - TC-UC10-03: Nicht-existierender Process
-     *
-     * TC-UC11: Simulation
-     *   - TC-UC11-01: Erfolgreiche Initialisierung
-     *   - TC-UC11-02: Mehrfach-Start-Prävention
-     *   - TC-UC11-03: Portionen-Konfiguration
-     */
-
-    // ══════════════════════════════════════════════════════════════════════════════════════
-    // TODO: TESTS FÜR DAVID T.'s METHODEN
-    // ══════════════════════════════════════════════════════════════════════════════════════
-
 }

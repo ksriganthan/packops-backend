@@ -3,6 +3,7 @@ package ch.packops.packopsbackend.dto;
 import ch.packops.packopsbackend.simulation.RuntimeSnapshot;
 
 import java.util.List;
+import java.util.Map;
 
 public class ProcessStatusDto {
 
@@ -13,7 +14,7 @@ public class ProcessStatusDto {
     private Integer maxUnits;
     private Integer maxIterationsForReject;
     private Integer deadlocksDetected;
-    private String recentMessage;
+    private Map<String, String > recentMessage;
 
     private List<RuntimeSnapshot.BucketSnapshot> bufferBuckets;
     private List<RuntimeSnapshot.BucketSnapshot> weighingBuckets;
@@ -112,11 +113,11 @@ public class ProcessStatusDto {
         this.deadlocksDetected = deadlocksDetected;
     }
 
-    public String getRecentMessage() {
+    public Map<String, String> getRecentMessage() {
         return recentMessage;
     }
 
-    public void setRecentMessage(String recentMessage) {
+    public void setRecentMessage(Map<String, String> recentMessage) {
         this.recentMessage = recentMessage;
     }
 }
