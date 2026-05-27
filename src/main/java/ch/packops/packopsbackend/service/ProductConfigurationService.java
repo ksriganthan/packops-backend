@@ -202,7 +202,6 @@ public class ProductConfigurationService {
      * Weist einem Produkt eine Category zu
      * - Wenn categoryId angegeben: Suche nach ID
      * - Wenn categoryName angegeben: Case-insensitive Suche nach Name, erstelle neue falls nicht vorhanden
-     * - Auto-Create ermöglicht flexible Category-Verwaltung (Groß-/Kleinschreibung wird ignoriert) Todo
      */
     private void handleCategoryAssignment(ProductConfiguration product, Long categoryId, String categoryName) {
         if (categoryId != null) {
@@ -210,20 +209,6 @@ public class ProductConfigurationService {
             categoryRepository.findById(categoryId)
                     .ifPresent(product::setCategory);
         } else if (categoryName != null) {
-            // Priorität 2: categoryName (case-insensitive)
-            // Damit es aufgrund Tippfehler nicht zu gefälschten Duplikaten kommt, wird die Suche case-insensitive durchgeführt
-//            categoryRepository.findByNameIgnoreCase(categoryName)
-//                    .ifPresentOrElse(
-//                            product::setCategory,
-//                            () -> {
-//                                // Auto-Create neue Category
-//                                Category newCat = new Category();
-//                                newCat.setName(categoryName);
-//                                Category savedCat = categoryRepository.save(newCat);
-//                                product.setCategory(savedCat);
-//                                loggingService.logInfo("Neue Category erstellt: " + categoryName, null);
-//                            }
-//                    );
         }
     }
 }

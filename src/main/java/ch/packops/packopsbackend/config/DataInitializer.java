@@ -14,11 +14,9 @@ import ch.packops.packopsbackend.repository.UserRepository;
 
 import ch.packops.packopsbackend.security.PasswordService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Component
@@ -55,23 +53,6 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         generateUsers();
         generateProducts();
-        // generateConfiguration();
-    }
-
-    private void generateConfiguration() {
-        if (configurationRepository.count() == 0) {
-
-            Configuration configuration = new Configuration();
-
-            configuration.setTargetWeight(250);
-            configuration.setTolerance(5);
-            configuration.setMaxUnits(100);
-            configuration.setMaxIterations(3);
-            configuration.setLanguage("de");
-            configuration.setUpdatedAt(LocalDateTime.now());
-
-            configurationRepository.save(configuration);
-        }
     }
 
     private void generateUsers() {
@@ -85,6 +66,28 @@ public class DataInitializer implements CommandLineRunner {
             admin.setLanguage("de");
             userRepository.save(admin);
             System.out.println("Default admin user created.");
+        }
+        // Operator user
+        if (userRepository.findByUsername("operator").isEmpty()) {
+            User operator = new User();
+            operator.setUsername("operator");
+            operator.setPasswordHash(passwordService.hash("operator123"));
+            operator.setEmail("operator@packops.ch");
+            operator.setRole("operator");
+            operator.setLanguage("de");
+            userRepository.save(operator);
+            System.out.println("Default operator user created.");
+        }
+        // Viewer user
+        if (userRepository.findByUsername("viewer").isEmpty()) {
+            User viewer = new User();
+            viewer.setUsername("viewer");
+            viewer.setPasswordHash(passwordService.hash("viewer123"));
+            viewer.setEmail("viewer@packops.ch");
+            viewer.setRole("viewer");
+            viewer.setLanguage("de");
+            userRepository.save(viewer);
+            System.out.println("Default viewer user created.");
         }
     }
 
@@ -356,7 +359,6 @@ public class DataInitializer implements CommandLineRunner {
 
         return savedCategory;
     }
-
 
     private void saveCategoryTranslation(Category category, String lang, String name) {
         CategoryTranslation translation = new CategoryTranslation();

@@ -124,9 +124,8 @@ public class ValidationService {
             throw new IllegalArgumentException("Process cannot be null");
         }
 
-        // Todo: Noch mit der Gruppe prüfen
-        // wenn kein Produkt ausgewählt wird, so wird momentan null im Backend gespeichert, eventuell noch so anpassen?
-        // Im Zusammenhang wenn jemand einen Prozess ohne ein Produkt startet (kann verschiedene gründe haben)
+        // wenn kein Produkt ausgewählt wird, so wird momentan null im Backend gespeichert.
+        // Im Zusammenhang, wenn jemand einen Prozess ohne ein Produkt startet (kann verschiedene Gründe haben).
         if (dto.getProductConfigurationId() == null) {
             // throw new IllegalArgumentException("ProductConfigurationId cannot be null");
         }
