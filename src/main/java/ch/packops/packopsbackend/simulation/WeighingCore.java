@@ -9,10 +9,7 @@ import ch.packops.packopsbackend.repository.ProcessRepository;
 import ch.packops.packopsbackend.service.LoggingService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class WeighingCore {
 
@@ -33,7 +30,7 @@ public class WeighingCore {
 
     private int tick;
     private int recentPortionWeight;
-    private String recentMessage = "Simulation gestartet";
+    private Map<String, String> recentMessage;
 
     private List<Integer> recentSelectedBuckets = new ArrayList<>();
 
@@ -51,6 +48,8 @@ public class WeighingCore {
         this.portionRepository = Objects.requireNonNull(portionRepository, "portionRepository must not be null");
         this.processRepository = Objects.requireNonNull(processRepository, "processRepository must not be null");
         this.loggingService = loggingService;
+
+        this.recentMessage = msgSimulationStarted();
         initializeBuckets();
     }
 
@@ -84,11 +83,8 @@ public class WeighingCore {
     }
 
     public void shiftPortionsDown() {
-        //Zuerst wird aus dem Weighing die Ladung in die MemoryBucket übergeben
         moveWeighingToMemory();
-        //Dann wird aus dem Buffer das WeighingBucket befüllt
         moveBufferToWeighing();
-        //Die nun leeren Buffer werden gefüllt mit neuem Input
         fillEmptyBuffers();
     }
 
@@ -99,10 +95,7 @@ public class WeighingCore {
             if (freeMemoryBucket != null && !weighingBuckets[channelIndex].isEmpty()) {
                 Portion portion = weighingBuckets[channelIndex].releasePortion();
                 freeMemoryBucket.fill(portion);
-
-                recentMessage = "Portion in MemoryBucket "
-                        + freeMemoryBucket.getBucketNr()
-                        + " verschoben";
+                recentMessage = msgPortionMovedToMemory(freeMemoryBucket.getBucketNr());
             }
         }
     }
@@ -112,11 +105,8 @@ public class WeighingCore {
             if (weighingBuckets[channelIndex].isEmpty() && !bufferBuckets[channelIndex].isEmpty()) {
                 Portion portion = bufferBuckets[channelIndex].releasePortion();
                 weighingBuckets[channelIndex].fill(portion);
-
                 recentPortionWeight = portion.getMeasuredWeight();
-                recentMessage = "WeighingBucket "
-                        + weighingBuckets[channelIndex].getBucketNr()
-                        + " gemessen";
+                recentMessage = msgWeighingBucketMeasured(weighingBuckets[channelIndex].getBucketNr());
             }
         }
     }
@@ -129,9 +119,7 @@ public class WeighingCore {
                 if (generated != null) {
                     bufferBuckets[channelIndex].fill(generated);
                     recentPortionWeight = generated.getMeasuredWeight();
-                    recentMessage = "Neue Portion in BufferBucket "
-                            + (channelIndex + 1)
-                            + " eingefüllt";
+                    recentMessage = msgBufferBucketFilled(channelIndex + 1);
                 }
             }
         }
@@ -150,7 +138,7 @@ public class WeighingCore {
 
         if (selectedBuckets.isEmpty()) {
             filledBuckets.forEach(MemoryBucket::incrementIterations);
-            recentMessage = "Keine passende Kombination gefunden";
+            recentMessage = msgNoCombinationFound();
             return;
         }
 
@@ -183,8 +171,8 @@ public class WeighingCore {
         int unitsPacked = process.getUnitsPacked() != null ? process.getUnitsPacked() : 0;
         process.setUnitsPacked(unitsPacked + 1);
         processRepository.save(process);
-        recentMessage = "Package " + savedPackage.getId() + " erstellt (" + totalWeight + "g)";
 
+        recentMessage = msgPackageCreated(savedPackage.getId(), totalWeight);
         recentSelectedBuckets = selectedBuckets.stream().map(MemoryBucket::getBucketNr).toList();
     }
 
@@ -211,7 +199,7 @@ public class WeighingCore {
             if (loggingService != null && process.getId() != null) {
                 loggingService.logDeadlock(process.getId(), bucket.getBucketNr());
             }
-            recentMessage = "Deadlock in MemoryBucket " + bucket.getBucketNr() + " zurückgeführt";
+            recentMessage = msgDeadlockResolved(bucket.getBucketNr());
         }
     }
 
@@ -237,14 +225,14 @@ public class WeighingCore {
         process.setStatus("STOPPED");
         process.setEndTimestamp(LocalDateTime.now());
         processRepository.save(process);
-        recentMessage = "Simulation gestoppt";
+        recentMessage = msgSimulationStopped();
     }
 
     private void finishProcess() {
         process.setStatus("FINISHED");
         process.setEndTimestamp(LocalDateTime.now());
         processRepository.save(process);
-        recentMessage = "Maximale Anzahl Packages erreicht";
+        recentMessage = msgMaxPackagesReached();
     }
 
     private MemoryBucket findFreeMemoryBucketForChannel(int channelIndex) {
@@ -306,5 +294,79 @@ public class WeighingCore {
             throw new IllegalStateException("Process maxIterationsForReject is missing");
         }
         return process.getMaxIterationsForReject();
+    }
+
+    // --- MEHRSPRACHIGE NACHRICHTEN ---
+
+    private Map<String, String> msgSimulationStarted() {
+        return Map.of(
+                "de", "Simulation gestartet",
+                "fr", "Simulation démarrée",
+                "en", "Simulation started"
+        );
+    }
+
+    private Map<String, String> msgPortionMovedToMemory(int bucketNr) {
+        return Map.of(
+                "de", "Portion in MemoryBucket " + bucketNr + " verschoben",
+                "fr", "Portion déplacée vers MemoryBucket " + bucketNr,
+                "en", "Portion moved to MemoryBucket " + bucketNr
+        );
+    }
+
+    private Map<String, String> msgWeighingBucketMeasured(int bucketNr) {
+        return Map.of(
+                "de", "WeighingBucket " + bucketNr + " gemessen",
+                "fr", "WeighingBucket " + bucketNr + " mesuré",
+                "en", "WeighingBucket " + bucketNr + " measured"
+        );
+    }
+
+    private Map<String, String> msgBufferBucketFilled(int bucketNr) {
+        return Map.of(
+                "de", "Neue Portion in BufferBucket " + bucketNr + " eingefüllt",
+                "fr", "Nouvelle portion remplie dans BufferBucket " + bucketNr,
+                "en", "New portion filled into BufferBucket " + bucketNr
+        );
+    }
+
+    private Map<String, String> msgNoCombinationFound() {
+        return Map.of(
+                "de", "Keine passende Kombination gefunden",
+                "fr", "Aucune combinaison appropriée trouvée",
+                "en", "No suitable combination found"
+        );
+    }
+
+    private Map<String, String> msgPackageCreated(Long packageId, int weight) {
+        return Map.of(
+                "de", "Package " + packageId + " erstellt (" + weight + "g)",
+                "fr", "Paquet " + packageId + " créé (" + weight + "g)",
+                "en", "Package " + packageId + " created (" + weight + "g)"
+        );
+    }
+
+    private Map<String, String> msgDeadlockResolved(int bucketNr) {
+        return Map.of(
+                "de", "Deadlock in MemoryBucket " + bucketNr + " zurückgeführt",
+                "fr", "Blocage dans MemoryBucket " + bucketNr + " résolu",
+                "en", "Deadlock in MemoryBucket " + bucketNr + " resolved"
+        );
+    }
+
+    private Map<String, String> msgSimulationStopped() {
+        return Map.of(
+                "de", "Simulation gestoppt",
+                "fr", "Simulation arrêtée",
+                "en", "Simulation stopped"
+        );
+    }
+
+    private Map<String, String> msgMaxPackagesReached() {
+        return Map.of(
+                "de", "Maximale Anzahl Packages erreicht",
+                "fr", "Nombre maximum de paquets atteint",
+                "en", "Maximum number of packages reached"
+        );
     }
 }

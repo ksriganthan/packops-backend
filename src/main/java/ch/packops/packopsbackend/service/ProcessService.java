@@ -256,8 +256,11 @@ public class ProcessService {
         dto.setMaxUnits(snapshot != null ? snapshot.getMaxUnits() : safeInt(process.getMaxUnits()));
         dto.setMaxIterationsForReject(snapshot != null ? snapshot.getMaxIterationsForReject() : safeInt(process.getMaxIterationsForReject()));
         dto.setDeadlocksDetected(snapshot != null ? snapshot.getDeadlocksDetected() : safeInt(process.getDeadlocksDetected()));
-        dto.setRecentMessage(snapshot != null ? snapshot.getRecentMessage() : "Keine aktive Simulation im Speicher");
-
+        dto.setRecentMessage(snapshot != null ? snapshot.getRecentMessage() : Map.of(
+                "de", "Keine aktive Simulation im Speicher",
+                "fr", "Aucune simulation active en mémoire",
+                "en", "No active simulation in memory"
+        ));
         // NEU: Snapshot-Daten für die Buckets übergeben
         if (snapshot != null) {
             dto.setBufferBuckets(snapshot.getBufferBuckets());

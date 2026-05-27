@@ -2,6 +2,7 @@ package ch.packops.packopsbackend.simulation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RuntimeSnapshot {
 
@@ -13,7 +14,7 @@ public class RuntimeSnapshot {
     private int maxIterationsForReject;
     private int deadlocksDetected;
     private Integer recentPortionWeight;
-    private String recentMessage;
+    private Map<String, String> recentMessage;
     private List<BucketSnapshot> bufferBuckets = new ArrayList<>();
     private List<BucketSnapshot> weighingBuckets = new ArrayList<>();
     private List<BucketSnapshot> memoryBuckets = new ArrayList<>();
@@ -94,11 +95,11 @@ public class RuntimeSnapshot {
         this.recentPortionWeight = recentPortionWeight;
     }
 
-    public String getRecentMessage() {
+    public Map<String, String> getRecentMessage() {
         return recentMessage;
     }
 
-    public void setRecentMessage(String recentMessage) {
+    public void setRecentMessage(Map<String, String> recentMessage) {
         this.recentMessage = recentMessage;
     }
 
