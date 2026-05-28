@@ -4,6 +4,11 @@ import ch.packops.packopsbackend.domain.Portion;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author David T.
+ */
+
+
 public class WeighingBucket implements Bucket {
 
     private final int bucketNr;

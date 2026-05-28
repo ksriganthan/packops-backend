@@ -5,11 +5,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author David T.
+ */
+
 public class SimulationManager {
 
+    // Zeitabstand zwischen zwei Simulationsticks
     private static final long DEFAULT_TICK_INTERVAL_MS = 500L;
 
-    //Wenn true, so wird bei laufenden Prozessen jeder Tick in der Konsole zum Debugging visualisert
+    // Aktiviert eine Konsolenausgabe des aktuellen Simulationszustands pro Tick
     private static final boolean DEBUG_CONSOLE_OUTPUT = true;
 
     private final InputSimulator inputSimulator;

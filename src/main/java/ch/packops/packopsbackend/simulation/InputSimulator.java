@@ -5,6 +5,10 @@ import ch.packops.packopsbackend.domain.Portion;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+/**
+ * @author David T.
+ */
+
 public class InputSimulator {
 
     private final Random random = new Random();

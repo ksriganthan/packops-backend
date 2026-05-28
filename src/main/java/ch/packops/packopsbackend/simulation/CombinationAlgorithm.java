@@ -7,9 +7,20 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * @author David T.
+ */
+
 public class CombinationAlgorithm {
 
 
+    /**
+     Sucht die beste Kombination aus belegten MemoryBuckets.
+     Eine Kombination ist gültig, wenn ihre Abweichung zum Zielgewicht
+     innerhalb der erlaubten Toleranz liegt.
+     Bevorzugt wird die Kombination mit der kleinsten Abweichung.
+     Bei gleicher Abweichung wird die Kombination mit weniger Buckets gewählt.
+     */
         public List<MemoryBucket> findBestBucketCombination(List<MemoryBucket> buckets, int targetWeight, int tolerance) {
         if (buckets == null || buckets.isEmpty()) {
             return Collections.emptyList();

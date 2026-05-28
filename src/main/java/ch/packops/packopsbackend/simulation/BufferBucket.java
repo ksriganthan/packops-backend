@@ -2,6 +2,10 @@ package ch.packops.packopsbackend.simulation;
 
 import ch.packops.packopsbackend.domain.Portion;
 
+/**
+ * @author David T.
+ */
+
 public class BufferBucket implements Bucket {
 
     private Portion portion;

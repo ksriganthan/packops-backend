@@ -2,10 +2,15 @@ package ch.packops.packopsbackend.simulation;
 
 import ch.packops.packopsbackend.domain.Portion;
 
+/**
+ * @author David T.
+ */
+
 public class MemoryBucket implements Bucket {
 
     private final int bucketNr;
     private Portion portion;
+    // Zählt, wie viele Ticks eine Portion bereits im MemoryBucket liegt
     private int iterations;
     private int maxIterationsForReject;
 
@@ -50,6 +55,10 @@ public class MemoryBucket implements Bucket {
         iterations = 0;
     }
 
+    /**
+     Eine Portion gilt als blockiert, wenn sie über die maximale Anzahl
+     erlaubter Iterationen hinweg nicht verwendet werden konnte.
+     */
     public boolean isDeadlocked() {
         return !isEmpty() && iterations >= maxIterationsForReject;
     }

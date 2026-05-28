@@ -11,9 +11,16 @@ import ch.packops.packopsbackend.service.LoggingService;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * @author David T.
+ */
+
+
 public class WeighingCore {
 
+    // Anzahl paralleler Kanäle der simulierten Wiegeanlage
     public static final int CHANNEL_COUNT = 8;
+    // Pro Kanal werden zwei MemoryBuckets verwendet
     public static final int MEMORY_BUCKETS_PER_CHANNEL = 2;
 
     private final Process process;
@@ -64,6 +71,12 @@ public class WeighingCore {
         }
     }
 
+    /**
+     Führt einen einzelnen Simulationstick aus.
+     Dabei werden zuerst Portionen weitertransportiert,
+     anschliessend wird eine passende Kombination gesucht
+     und zuletzt werden mögliche Deadlocks behandelt.
+     */
     public synchronized void processTick() {
         if (!"RUNNING".equalsIgnoreCase(process.getStatus())) {
             return;
@@ -82,6 +95,12 @@ public class WeighingCore {
         }
     }
 
+    /**
+     Transportiert Portionen nach dem Pull-Prinzip weiter:
+     WeighingBucket -> MemoryBucket,
+     BufferBucket -> WeighingBucket,
+     InputSimulator -> BufferBucket.
+     */
     public void shiftPortionsDown() {
         moveWeighingToMemory();
         moveBufferToWeighing();
@@ -125,6 +144,11 @@ public class WeighingCore {
         }
     }
 
+    /**
+     Sucht aus allen belegten MemoryBuckets eine gültige Gewichtskombination.
+     Falls eine Kombination innerhalb der Toleranz gefunden wird,
+     wird daraus eine PackageUnit erstellt und persistiert.
+     */
     public void createPackage() {
         List<MemoryBucket> filledBuckets = Arrays.stream(memoryBuckets)
                 .filter(bucket -> !bucket.isEmpty())
@@ -176,6 +200,11 @@ public class WeighingCore {
         recentSelectedBuckets = selectedBuckets.stream().map(MemoryBucket::getBucketNr).toList();
     }
 
+    /**
+     Behandelt Portionen, die über mehrere Ticks hinweg
+     keine passende Kombination bilden konnten.
+     Diese Portionen werden zurückgeführt und ohne PackageUnit gespeichert.
+     */
     public void handleDeadlocks() {
         for (MemoryBucket bucket : memoryBuckets) {
             if (!bucket.isDeadlocked()) {
@@ -203,6 +232,11 @@ public class WeighingCore {
         }
     }
 
+    /**
+     Erstellt eine Momentaufnahme der laufenden Simulation.
+     Diese Daten werden für Statusabfragen, Frontend-Anzeige
+     und Debugging verwendet.
+     */
     public synchronized RuntimeSnapshot getRuntimeSnapshot() {
         RuntimeSnapshot snapshot = new RuntimeSnapshot();
         snapshot.setProcessId(process.getId());
