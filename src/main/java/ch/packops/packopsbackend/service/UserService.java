@@ -137,16 +137,4 @@ public class UserService {
         String action = existing.isActive() ? "aktiviert" : "deaktiviert";
         loggingService.logInfo("Benutzer und Session " + action + ": " + userId, null);
     }
-
-    public UserDto changeLanguage(Long userId, String langCode) {
-        User existing = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        if (langCode == null || langCode.isEmpty()) {
-            throw new IllegalArgumentException("Language code cannot be empty");
-        }
-
-        existing.setLanguage(langCode);
-        return toDto(userRepository.save(existing));
-    }
 }

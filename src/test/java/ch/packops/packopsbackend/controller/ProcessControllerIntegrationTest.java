@@ -1,6 +1,5 @@
 package ch.packops.packopsbackend.controller;
 
-import ch.packops.packopsbackend.domain.Configuration;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
 import ch.packops.packopsbackend.domain.User;
@@ -40,9 +39,6 @@ public class ProcessControllerIntegrationTest {
     private ProductConfigurationRepository productConfigurationRepository;
 
     @Autowired
-    private ConfigurationRepository configurationRepository;
-
-    @Autowired
     private AuditLogRepository auditLogRepository;
 
     @Autowired
@@ -73,8 +69,6 @@ public class ProcessControllerIntegrationTest {
         userRepository.deleteAll();
         // 7. product_configurations
         productConfigurationRepository.deleteAll();
-        // 8. configuration
-        configurationRepository.deleteAll();
 
         // Users erstellen
         createUser("admin", "admin@test.ch", "admin123", "admin");
@@ -84,18 +78,9 @@ public class ProcessControllerIntegrationTest {
         ProductConfiguration productConfig = new ProductConfiguration();
         productConfig.setDefaultTargetWeight(250);
         productConfig.setDefaultTolerance(10);
-        productConfig.setPackageUnits(100);
         productConfig.setActive(true);
         productConfigId = productConfigurationRepository.save(productConfig).getId();
 
-        // Globale Configuration erstellen
-        Configuration config = new Configuration();
-        config.setTargetWeight(250);
-        config.setTolerance(10);
-        config.setMaxUnits(100);
-        config.setMaxIterations(3);
-        config.setLanguage("de");
-        configurationRepository.save(config);
     }
 
        // TC-UC03-02: Datenbank leer → leere Liste

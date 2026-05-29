@@ -14,7 +14,6 @@ public class ProductConfiguration {
     private Long id;
     private Integer defaultTargetWeight;
     private Integer defaultTolerance;
-    private Integer packageUnits;
     private String icon;
     private String color;
     private Boolean active = true;
@@ -68,14 +67,6 @@ public class ProductConfiguration {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public Integer getPackageUnits() {
-        return packageUnits;
-    }
-
-    public void setPackageUnits(Integer packageUnits) {
-        this.packageUnits = packageUnits;
     }
 
     public Category getCategory() {

@@ -7,7 +7,6 @@ import ch.packops.packopsbackend.domain.Category;
 import ch.packops.packopsbackend.domain.ProductConfiguration;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.repository.CategoryRepository;
-import ch.packops.packopsbackend.repository.ConfigurationRepository;
 import ch.packops.packopsbackend.repository.ProductConfigurationRepository;
 import ch.packops.packopsbackend.repository.UserRepository;
 
@@ -27,7 +26,6 @@ public class DataInitializer implements CommandLineRunner {
         private final PasswordService passwordService;
         private final CategoryRepository categoryRepository;
         private final ProductConfigurationRepository productConfigurationRepository;
-        private final ConfigurationRepository configurationRepository;
 
         private final ProductConfigurationTranslationRepository translationRepository;
         private final CategoryTranslationRepository categoryTranslationRepository;
@@ -37,7 +35,6 @@ public class DataInitializer implements CommandLineRunner {
                         PasswordService passwordService,
                         CategoryRepository categoryRepository,
                         ProductConfigurationRepository productConfigurationRepository,
-                        ConfigurationRepository configurationRepository,
                         ProductConfigurationTranslationRepository translationRepository,
                         CategoryTranslationRepository categoryTranslationRepository,
                         Environment env) {
@@ -45,7 +42,6 @@ public class DataInitializer implements CommandLineRunner {
                 this.passwordService = passwordService;
                 this.categoryRepository = categoryRepository;
                 this.productConfigurationRepository = productConfigurationRepository;
-                this.configurationRepository = configurationRepository;
 
                 this.categoryTranslationRepository = categoryTranslationRepository;
                 this.translationRepository = translationRepository;

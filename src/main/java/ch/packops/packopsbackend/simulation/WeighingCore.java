@@ -374,9 +374,9 @@ public class WeighingCore {
 
     private Map<String, String> msgPackageCreated(Long packageId, int weight) {
         return Map.of(
-                "de", "Package " + packageId + " erstellt (" + weight + "g)",
-                "fr", "Paquet " + packageId + " créé (" + weight + "g)",
-                "en", "Package " + packageId + " created (" + weight + "g)"
+                "de", "Package mit ID " + packageId + " erstellt (" + weight + "g)",
+                "fr", "Paquet avec ID " + packageId + " créé (" + weight + "g)",
+                "en", "Package with ID " + packageId + " created (" + weight + "g)"
         );
     }
 

@@ -45,7 +45,6 @@ public class ProductConfigurationService {
         dto.setId(product.getId());
         dto.setDefaultTargetWeight(product.getDefaultTargetWeight());
         dto.setDefaultTolerance(product.getDefaultTolerance());
-        dto.setPackageUnits(product.getPackageUnits());
         dto.setIcon(product.getIcon());
         dto.setColor(product.getColor());
         dto.setActive(product.getActive());
@@ -68,32 +67,10 @@ public class ProductConfigurationService {
         return dto;
     }
 
-    public List<ProductConfigurationDto> getProductConfigurations(String categoryName) {
+    public List<ProductConfigurationDto> getProductConfigurations() {
         List<ProductConfiguration> products = productConfigurationRepository.findAll();
 
-        // Falls categoryName gegeben ist, nach Category filtern
-        if (categoryName != null && !categoryName.isEmpty()) {
-            products = products.stream()
-                    .filter(product -> {
-                        if (product.getCategory() == null
-                            || product.getCategory().getTranslations() == null) {
-                            return false;
-                        }
-                        // Prüfe, ob irgendeine Translation den gesuchten Namen hat (case-insensitive)
-                        return product.getCategory().getTranslations().stream()
-                                .anyMatch(translation -> translation.getCategoryName() != null
-                                        && translation.getCategoryName().equalsIgnoreCase(categoryName));
-                    })
-                    .collect(Collectors.toList());
-        }
-
         return products.stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    public ProductConfigurationDto getProductConfiguration(Long id) {
-        ProductConfiguration product = productConfigurationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
-        return toDto(product);
     }
 
     public ProductConfigurationDto createProductConfiguration(ProductConfigurationCreateDto dto) {
@@ -105,7 +82,6 @@ public class ProductConfigurationService {
         product.setDefaultTolerance(dto.getTolerance());
         product.setIcon(dto.getIcon());
         product.setColor(dto.getColor());
-        product.setPackageUnits(0);
         ProductConfiguration saved = productConfigurationRepository.save(product);
 
         // Translations speichern

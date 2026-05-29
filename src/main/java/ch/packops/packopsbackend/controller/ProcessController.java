@@ -54,9 +54,10 @@ public class ProcessController {
     // Hier brauchen wir das richtige Process-Objekt, um zu prüfen, ob der User berechtigt ist
         Process domainProcess = processService.getProcessDomainById(id);
 
-        // Zugriff erlaubt, wenn der Benutzer Admin ist oder der Prozess dem Benutzer gehört.
-        // Falls beides nicht zutrifft, wird 403 Forbidden zurückgegeben.
-        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess)) {
+        // Zugriff erlaubt, wenn der Benutzer Admin ist, der Prozess dem Benutzer gehört,
+        // oder der Prozess aktuell aktiv ("RUNNING") ist.
+        // Falls keines zutrifft, wird 403 Forbidden zurückgegeben.
+        if (!isAdmin(jwt) && !isOwnProcess(jwt, domainProcess) && !"RUNNING".equalsIgnoreCase(domainProcess.getStatus())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(processService.getProcessById(id));

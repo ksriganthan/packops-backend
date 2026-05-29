@@ -1,9 +1,7 @@
 package ch.packops.packopsbackend.controller;
 
-import ch.packops.packopsbackend.domain.Category;
 import ch.packops.packopsbackend.dto.CategoryCreationDto;
 import ch.packops.packopsbackend.dto.CategoryDto;
-import ch.packops.packopsbackend.dto.ConfigurationDto;
 
 import ch.packops.packopsbackend.service.CategoryService;
 import org.springframework.http.ResponseEntity;
