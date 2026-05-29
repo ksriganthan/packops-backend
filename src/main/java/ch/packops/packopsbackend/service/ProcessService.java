@@ -3,7 +3,6 @@ package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.domain.*;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.dto.*;
-import ch.packops.packopsbackend.repository.ConfigurationRepository;
 import ch.packops.packopsbackend.repository.PackageRepository;
 import ch.packops.packopsbackend.repository.PortionRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
@@ -27,7 +26,6 @@ public class ProcessService {
 
     private final ProcessRepository processRepository;
     private final ProductConfigurationRepository productConfigurationRepository;
-    private final ConfigurationRepository configurationRepository;
     private final PackageRepository packageRepository;
     private final PortionRepository portionRepository;
     private final UserRepository userRepository;
@@ -38,7 +36,6 @@ public class ProcessService {
     public ProcessService(
             ProcessRepository processRepository,
             ProductConfigurationRepository productConfigurationRepository,
-            ConfigurationRepository configurationRepository,
             PackageRepository packageRepository,
             PortionRepository portionRepository,
             UserRepository userRepository,
@@ -46,7 +43,6 @@ public class ProcessService {
             ValidationService validationService) {
         this.processRepository = processRepository;
         this.productConfigurationRepository = productConfigurationRepository;
-        this.configurationRepository = configurationRepository;
         this.packageRepository = packageRepository;
         this.portionRepository = portionRepository;
         this.userRepository = userRepository;
@@ -76,9 +72,6 @@ public class ProcessService {
         if (process.getProductConfiguration() != null) {
             dto.setProductConfigurationId(process.getProductConfiguration().getId());
         }
-        if (process.getConfiguration() != null) {
-            dto.setConfigurationId(process.getConfiguration().getId());
-        }
         return dto;
     }
 
@@ -99,9 +92,6 @@ public class ProcessService {
         }
         if (process.getProductConfiguration() != null) {
             dto.setProductConfigurationId(process.getProductConfiguration().getId());
-        }
-        if (process.getConfiguration() != null) {
-            dto.setConfigurationId(process.getConfiguration().getId());
         }
 
         List<PackageUnit> packageUnits = packageRepository.findByProcessId(process.getId());
@@ -190,19 +180,14 @@ public class ProcessService {
                 .orElseThrow(() -> new IllegalArgumentException("ProductConfiguration not found with id: " + request.getProductConfigurationId()))
                 : null;
 
-        Configuration configuration = request.getConfigurationId() != null
-                ? configurationRepository.findById(request.getConfigurationId())
-                .orElseThrow(() -> new IllegalArgumentException("Configuration not found with id: " + request.getConfigurationId()))
-                : configurationRepository.findAll().stream().findFirst().orElse(null);
 
         Process process = new Process();
         process.setProductConfiguration(productConfiguration);
-        process.setConfiguration(configuration);
         process.setUser(resolveUser(userId));
-        process.setTargetWeight(resolveTargetWeight(request, productConfiguration, configuration));
-        process.setTolerance(resolveTolerance(request, productConfiguration, configuration));
-        process.setMaxUnits(resolveMaxUnits(request, productConfiguration, configuration));
-        process.setMaxIterationsForReject(resolveMaxIterations(request, configuration));
+        process.setTargetWeight(resolveTargetWeight(request, productConfiguration));
+        process.setTolerance(resolveTolerance(request, productConfiguration));
+        process.setMaxUnits(resolveMaxUnits(request, productConfiguration));
+        process.setMaxIterationsForReject(resolveMaxIterations(request));
         process.setUnitsPacked(0);
         process.setDeadlocksDetected(0);
         process.setStatus("RUNNING");
@@ -290,30 +275,25 @@ public class ProcessService {
         simulationManager.startSimulation();
     }
 
-    private int resolveTargetWeight(ProcessStartDto dto, ProductConfiguration product, Configuration configuration) {
+    private int resolveTargetWeight(ProcessStartDto dto, ProductConfiguration product) {
         if (dto.getTargetWeight() != null) return dto.getTargetWeight();
         if (product != null && product.getDefaultTargetWeight() != null) return product.getDefaultTargetWeight();
-        if (configuration.getTargetWeight() != null) return configuration.getTargetWeight();
         throw new IllegalStateException("No targetWeight configured");
     }
 
-    private int resolveTolerance(ProcessStartDto dto, ProductConfiguration product, Configuration configuration) {
+    private int resolveTolerance(ProcessStartDto dto, ProductConfiguration product) {
         if (dto.getTolerance() != null) return dto.getTolerance();
         if (product != null && product.getDefaultTolerance() != null) return product.getDefaultTolerance();
-        if (configuration.getTolerance() != null) return configuration.getTolerance();
         throw new IllegalStateException("No tolerance configured");
     }
 
-    private int resolveMaxUnits(ProcessStartDto dto, ProductConfiguration product, Configuration configuration) {
+    private int resolveMaxUnits(ProcessStartDto dto, ProductConfiguration product) {
         if (dto.getMaxUnits() != null) return dto.getMaxUnits();
-        if (product != null && product.getPackageUnits() != null) return product.getPackageUnits();
-        if (configuration.getMaxUnits() != null) return configuration.getMaxUnits();
         throw new IllegalStateException("No maxUnits configured");
     }
 
-    private int resolveMaxIterations(ProcessStartDto dto, Configuration configuration) {
+    private int resolveMaxIterations(ProcessStartDto dto) {
         if (dto.getMaxIterationsForReject() != null) return dto.getMaxIterationsForReject();
-        if (configuration.getMaxIterations() != null) return configuration.getMaxIterations();
         throw new IllegalStateException("No maxIterations configured");
     }
 

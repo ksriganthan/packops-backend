@@ -81,21 +81,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // PUT /api/users/{userId}/language
-    // Admin darf alle ändern, User darf eigene Sprache ändern
-    @PutMapping("/{userId}/language")
-    public ResponseEntity<UserDto> changeLanguage(
-            @PathVariable Long userId,
-            @RequestParam String langCode,
-            @AuthenticationPrincipal Jwt jwt) {
-
-        if (!isAdmin(jwt) && !isOwnUser(jwt, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        return ResponseEntity.ok(userService.changeLanguage(userId, langCode));
-    }
-
     private boolean isAdmin(Jwt jwt) {
         String role = jwt.getClaimAsString("role");
         return ROLE_ADMIN.equalsIgnoreCase(role);

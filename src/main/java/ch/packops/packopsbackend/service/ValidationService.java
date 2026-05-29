@@ -21,25 +21,6 @@ public class ValidationService {
 
     }
 
-    // Validation ConfigurationDto
-    public void validateConfiguration(ConfigurationDto dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("Configuration cannot be null");
-        }
-        if (dto.getTargetWeight() == null || dto.getTargetWeight() < 50 || dto.getTargetWeight() > 500) {
-            throw new IllegalArgumentException("TargetWeight must be between 50 and 500");
-        }
-        if (dto.getTolerance() == null || dto.getTolerance() < 0) {
-            throw new IllegalArgumentException("Tolerance must be positive");
-        }
-        if (dto.getMaxUnits() == null || dto.getMaxUnits() <= 0) {
-            throw new IllegalArgumentException("MaxUnits must be greater than 0");
-        }
-        if (dto.getMaxIterationsForReject() == null || dto.getMaxIterationsForReject() <= 0) {
-            throw new IllegalArgumentException("MaxIterations must be greater than 0");
-        }
-    }
-
     // Validation ProductConfigurationCreateDto
     public void validateProduct(ProductConfigurationCreateDto dto) {
         if (dto == null) {

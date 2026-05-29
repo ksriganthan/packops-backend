@@ -3,7 +3,6 @@ package ch.packops.packopsbackend.service;
 import ch.packops.packopsbackend.domain.Process;
 import ch.packops.packopsbackend.domain.User;
 import ch.packops.packopsbackend.dto.ProcessDto;
-import ch.packops.packopsbackend.repository.ConfigurationRepository;
 import ch.packops.packopsbackend.repository.PackageRepository;
 import ch.packops.packopsbackend.repository.PortionRepository;
 import ch.packops.packopsbackend.repository.ProcessRepository;
@@ -38,9 +37,6 @@ public class ProcessServiceTest {
 
     @Mock
     private ProductConfigurationRepository productConfigurationRepository;
-
-    @Mock
-    private ConfigurationRepository configurationRepository;
 
     @Mock
     private PackageRepository packageRepository;

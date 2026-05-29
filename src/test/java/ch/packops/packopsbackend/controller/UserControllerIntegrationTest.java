@@ -161,19 +161,6 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // TC-UC09-04: Sprachwechsel
-    @Test
-    void changeLanguage_valid_returns200() throws Exception {
-        String token = loginAndGetToken("admin", "admin123");
-        User admin = userRepository.findByUsername("admin").orElseThrow();
-
-        mockMvc.perform(put("/api/users/" + admin.getId() + "/language")
-                        .header("Authorization", "Bearer " + token)
-                        .param("langCode", "en"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.language").value("en"));
-    }
-
     // Hilfsmethoden
 
     private void createUser(String username, String email, String password, String role) {

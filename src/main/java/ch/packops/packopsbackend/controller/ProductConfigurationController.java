@@ -24,23 +24,13 @@ public class ProductConfigurationController {
         this.productConfigurationService = productConfigurationService;
     }
 
-    // GET /api/products?category=...
+    // GET /api/products
     // Alle eingeloggten User dürfen lesen
     @GetMapping
-    public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurations(
-            @RequestParam(required = false) String category) {
+    public ResponseEntity<List<ProductConfigurationDto>> getProductConfigurations() {
 
         return ResponseEntity.ok(
-                productConfigurationService.getProductConfigurations(category)
-        );
-    }
-
-    // GET /api/products/{id}
-    // Alle eingeloggten User dürfen lesen
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductConfigurationDto> getProductConfiguration(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                productConfigurationService.getProductConfiguration(id)
+                productConfigurationService.getProductConfigurations()
         );
     }
 
