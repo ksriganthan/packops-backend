@@ -9,11 +9,15 @@ import ch.packops.packopsbackend.dto.*;
 
 import java.time.LocalDateTime;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * @author Kapischan Sriganthan
  */
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class LoggingService {
 
     private final AuditLogRepository auditLogRepository;
