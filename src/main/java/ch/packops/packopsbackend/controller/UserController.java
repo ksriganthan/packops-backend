@@ -4,6 +4,7 @@ import ch.packops.packopsbackend.dto.UserCreateDto;
 import ch.packops.packopsbackend.dto.UserDto;
 import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -60,7 +61,7 @@ public class UserController {
     // PUT /api/users/{userId}
     // Admin darf alle bearbeiten, User darf sich selbst bearbeiten
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> updateUser(
+    public ResponseEntity<?> updateUser(
             @PathVariable Long userId,
             @RequestBody UserUpdateDto dto,
             @AuthenticationPrincipal Jwt jwt) {
@@ -69,7 +70,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return ResponseEntity.ok(userService.updateUser(userId, dto));
+        if (isAdmin(jwt)) {
+            if (dto.getOldPassword() != null && !dto.getOldPassword().isEmpty()) {
+                return ResponseEntity.ok(userService.updatePassword(userId, dto));
+            } else {
+                return ResponseEntity.ok(userService.updateUser(userId, dto));
+            }
+        } else if (isOwnUser(jwt, userId)) {
+            return ResponseEntity.ok(userService.updatePassword(userId, dto));
+        } else {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     // DELETE /api/users/{userId}

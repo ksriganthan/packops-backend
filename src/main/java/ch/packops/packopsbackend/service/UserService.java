@@ -8,10 +8,12 @@ import ch.packops.packopsbackend.dto.UserUpdateDto;
 import ch.packops.packopsbackend.repository.UserRepository;
 import ch.packops.packopsbackend.repository.UserSessionRepository;
 import ch.packops.packopsbackend.security.TokenService;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import ch.packops.packopsbackend.security.PasswordService;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -136,5 +138,22 @@ public class UserService {
         }
         String action = existing.isActive() ? "aktiviert" : "deaktiviert";
         loggingService.logInfo("Benutzer und Session " + action + ": " + userId, null);
+    }
+
+    public UserDto updatePassword(Long userId, UserUpdateDto dto) {
+        validationService.validateUserUpdate(dto);
+
+        User existing = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (dto.getOldPassword() != null && !dto.getOldPassword().isEmpty()) {
+            if (passwordService.matches(dto.getOldPassword(), existing.getPasswordHash())) {
+                existing.setPasswordHash(passwordService.hash(dto.getPassword()));
+            } else {
+                throw new IllegalArgumentException("Old password does not match");
+            }
+        }
+
+        return toDto(userRepository.save(existing));
     }
 }
