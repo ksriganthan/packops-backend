@@ -342,4 +342,4 @@ Gemäss Projektdokumentation, Tabelle 6:
 | Ping / Health-Check | Teodor Glisic |
 
 Team: Teodor Glisic, David Mitkov, Mladen Radovanovic, Kapischan Sriganthan,
-David Thomi · Dozent: Lukas Frey
+David Thomi
